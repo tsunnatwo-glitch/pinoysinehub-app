@@ -1,0 +1,28 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User account and profile data",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "avatar": { "type": "string" },
+        "role": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "lastActiveAt": { "type": "number" },
+        "watchlistCount": { "type": "number" },
+        "likesCount": { "type": "number" },
+        "historyCount": { "type": "number" },
+        "isOnline": { "type": "boolean" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Registered and guest users of Pinoysinehub"
+    }
+  }
+}
