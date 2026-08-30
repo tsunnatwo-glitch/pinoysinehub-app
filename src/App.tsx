@@ -8,6 +8,7 @@ import confetti from 'canvas-confetti';
 import { Movie, Episode, DownloadedItem, UserProfile, QualityTier } from './types';
 import { MOVIES_CATALOG, GENRE_CATEGORIES } from './data/catalog';
 import { storageService } from './services/storageService';
+import { movieService } from './services/movieService';
 import { userService, OWNER_EMAIL } from './services/userService';
 
 import { Navbar } from './components/Navbar';
@@ -29,12 +30,39 @@ export default function App() {
   const [selectedGenreCategory, setSelectedGenreCategory] = useState<string>('All');
 
   // Persistence state
-  const [customMovies, setCustomMovies] = useState<Movie[]>(() => storageService.getCustomMovies());
+  const [customMovies, setCustomMovies] = useState<Movie[]>([]);
   const [deletedMovieIds, setDeletedMovieIds] = useState<string[]>(() => storageService.getDeletedMovieIds());
   const [userProfile, setUserProfile] = useState<UserProfile>(() => storageService.getUserProfile());
   const [downloads, setDownloads] = useState<DownloadedItem[]>(() => storageService.getDownloads());
   const [isOfflineMode, setIsOfflineMode] = useState<boolean>(() => storageService.getOfflineMode());
 
+  // Load custom movies from Firestore
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadCustomMovies = async () => {
+      try {
+        const movies = await movieService.getCustomMovies();
+
+        if (!cancelled) {
+          setCustomMovies(movies);
+        }
+      } catch (error) {
+        console.error('Failed to load custom movies from Firestore:', error);
+
+        // Fallback to localStorage if Firestore is unavailable
+        if (!cancelled) {
+          setCustomMovies(storageService.getCustomMovies());
+        }
+      }
+    };
+
+    loadCustomMovies();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   // Modals state
   const [selectedMovieForDetails, setSelectedMovieForDetails] = useState<Movie | null>(null);
   const [activePlayingMovie, setActivePlayingMovie] = useState<Movie | null>(null);
@@ -243,27 +271,46 @@ export default function App() {
     }, 600);
   };
 
-  const handleAddCustomMovie = (newMovie: Movie) => {
-    setCustomMovies((prev) => [newMovie, ...prev]);
-    setDeletedMovieIds((prev) => prev.filter((id) => id !== newMovie.id));
+  const handleAddCustomMovie = async (newMovie: Movie) => {
+    try {
+      await movieService.saveMovie(newMovie);
+      setCustomMovies((prev) => [newMovie, ...prev]);
+      setDeletedMovieIds((prev) => prev.filter((id) => id !== newMovie.id));
+    } catch (error) {
+      console.error('Failed to save movie to Firestore:', error);
+      alert('Hindi na-save ang movie sa cloud. Pakisubukan ulit.');
+    }
   };
 
-  const handleUpdateCustomMovie = (updatedMovie: Movie) => {
-    setCustomMovies((prev) => prev.map((movie) => movie.id === updatedMovie.id ? updatedMovie : movie));
-    setDeletedMovieIds((prev) => prev.filter((id) => id !== updatedMovie.id));
-    setSelectedMovieForDetails((current) => current?.id === updatedMovie.id ? updatedMovie : current);
-    setActivePlayingMovie((current) => current?.id === updatedMovie.id ? updatedMovie : current);
-    setActivePlayingEpisode((current) => {
-      if (!current || !updatedMovie.episodes) return current;
-      return updatedMovie.episodes.find((episode) => episode.id === current.id) || current;
-    });
+  const handleUpdateCustomMovie = async (updatedMovie: Movie) => {
+    try {
+      await movieService.saveMovie(updatedMovie);
+      setCustomMovies((prev) => prev.map((movie) => movie.id === updatedMovie.id ? updatedMovie : movie));
+      setDeletedMovieIds((prev) => prev.filter((id) => id !== updatedMovie.id));
+      setSelectedMovieForDetails((current) => current?.id === updatedMovie.id ? updatedMovie : current);
+      setActivePlayingMovie((current) => current?.id === updatedMovie.id ? updatedMovie : current);
+      setActivePlayingEpisode((current) => {
+        if (!current || !updatedMovie.episodes) return current;
+        return updatedMovie.episodes.find((episode) => episode.id === current.id) || current;
+      });
+    } catch (error) {
+      console.error('Failed to update movie in Firestore:', error);
+      alert('Hindi na-update ang movie sa cloud. Pakisubukan ulit.');
+    }
   };
 
-  const handleDeleteMovie = (movieId: string) => {
+  const handleDeleteMovie = async (movieId: string) => {
     const isCustomMovie = customMovies.some((m) => m.id === movieId);
 
     if (isCustomMovie) {
-      setCustomMovies((prev) => prev.filter((m) => m.id !== movieId));
+      try {
+        await movieService.deleteMovie(movieId);
+        setCustomMovies((prev) => prev.filter((m) => m.id !== movieId));
+      } catch (error) {
+        console.error('Failed to delete movie from Firestore:', error);
+        alert('Hindi na-delete ang movie sa cloud. Pakisubukan ulit.');
+        return;
+      }
     } else {
       setDeletedMovieIds((prev) => (prev.includes(movieId) ? prev : [...prev, movieId]));
     }
@@ -653,3 +700,9 @@ export default function App() {
     </div>
   );
 }
+
+
+
+
+
+
