@@ -10,6 +10,22 @@ import { Movie } from '../types';
 
 const MOVIES_COLLECTION = 'movies';
 
+const removeUndefined = (value: any): any => {
+  if (Array.isArray(value)) {
+    return value.map(removeUndefined);
+  }
+
+  if (value !== null && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter(([, v]) => v !== undefined)
+        .map(([key, v]) => [key, removeUndefined(v)])
+    );
+  }
+
+  return value;
+};
+
 export const movieService = {
   async getCustomMovies(): Promise<Movie[]> {
     const snapshot = await getDocs(collection(db, MOVIES_COLLECTION));
@@ -21,7 +37,12 @@ export const movieService = {
   },
 
   async saveMovie(movie: Movie): Promise<void> {
-    await setDoc(doc(db, MOVIES_COLLECTION, movie.id), movie);
+    const cleanMovie = removeUndefined(movie);
+
+    await setDoc(
+      doc(db, MOVIES_COLLECTION, movie.id),
+      cleanMovie
+    );
   },
 
   async deleteMovie(movieId: string): Promise<void> {
