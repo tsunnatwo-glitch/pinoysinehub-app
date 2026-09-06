@@ -45,7 +45,8 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [showSubtitleMenu, setShowSubtitleMenu] = useState(false);
   const [isScreenLocked, setIsScreenLocked] = useState(false);
 
-  // Keep Back navigation inside PinoySineHub while the player is open.
+  // Keep Android/WebView Back inside the active video-player flow.
+  // This prevents the APK from jumping directly to the homepage.
   const playerHistoryActiveRef = useRef(false);
   const closingPlayerRef = useRef(false);
 
@@ -55,34 +56,22 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     playerHistoryActiveRef.current = true;
     closingPlayerRef.current = false;
 
-    const currentState = window.history.state || {};
-
     window.history.pushState(
       {
-        ...currentState,
+        ...(window.history.state || {}),
         __pinoySineHubVideoPlayer: true,
       },
       '',
       window.location.href
     );
 
-    const handlePlayerBack = () => {
+    const handlePlayerBack = (event: PopStateEvent) => {
       if (closingPlayerRef.current) return;
 
-      // Restore the player history entry immediately.
-      // This prevents an iframe/ad navigation from sending
-      // the main PinoySineHub page back to its homepage.
-      window.history.pushState(
-        {
-          ...(window.history.state || {}),
-          __pinoySineHubVideoPlayer: true,
-        },
-        '',
-        window.location.href
-      );
-
-      playerHistoryActiveRef.current = false;
-      onClose();
+      if (!event.state?.__pinoySineHubVideoPlayer) {
+        playerHistoryActiveRef.current = false;
+        onClose();
+      }
     };
 
     window.addEventListener('popstate', handlePlayerBack);
@@ -90,6 +79,8 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     return () => {
       window.removeEventListener('popstate', handlePlayerBack);
 
+      // If the player was closed using its own button instead of Back,
+      // remove the temporary player history entry.
       if (
         playerHistoryActiveRef.current &&
         window.history.state?.__pinoySineHubVideoPlayer
@@ -438,6 +429,5 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     </div>
   );
 };
-
 
 

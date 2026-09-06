@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Play, ThumbsUp, Heart, Plus, Sparkles } from 'lucide-react';
+import { X, Play, Download, Check, ThumbsUp, Heart, Plus, Sparkles } from 'lucide-react';
 import { Movie, Episode, QualityTier } from '../types';
 
 interface MovieDetailModalProps {
@@ -18,11 +18,24 @@ export const MovieDetailModal: React.FC<MovieDetailModalProps> = ({
   movie,
   onClose,
   onPlay,
+  onStartDownload,
+  downloadedItemIds,
   isInWatchlist,
   onToggleWatchlist,
   onRateMovie,
   userRating,
 }) => {
+  const [selectedQuality, setSelectedQuality] = useState<QualityTier>('HD (720p)');
+  const [showQualityPicker, setShowQualityPicker] = useState(false);
+
+  if (!movie) return null;
+
+  const isDownloaded = downloadedItemIds.includes(movie.id);
+
+  const handleDownloadClick = (episode?: Episode) => {
+    onStartDownload(movie, episode, selectedQuality);
+    setShowQualityPicker(false);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
@@ -75,6 +88,50 @@ export const MovieDetailModal: React.FC<MovieDetailModalProps> = ({
               <Play className="w-4 h-4 fill-black" />
               <span>I-play Ngayon</span>
             </button>
+
+            {/* Download Button */}
+            <div className="relative">
+              <button
+                id="detail-download-btn"
+                onClick={() => setShowQualityPicker(!showQualityPicker)}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border font-semibold text-xs sm:text-sm transition-all ${
+                  isDownloaded
+                    ? 'bg-emerald-950/60 text-emerald-300 border-emerald-500/50'
+                    : 'bg-neutral-800 text-white border-neutral-700 hover:bg-neutral-700'
+                }`}
+              >
+                {isDownloaded ? <Check className="w-4 h-4 text-emerald-400" /> : <Download className="w-4 h-4" />}
+                <span>{isDownloaded ? 'Downloaded Offline' : 'I-download Offline'}</span>
+              </button>
+
+              {/* Quality Picker Dropdown */}
+              {showQualityPicker && (
+                <div className="absolute top-full mt-2 left-0 z-40 w-56 bg-neutral-950 border border-neutral-700 rounded-xl p-3 shadow-2xl space-y-2">
+                  <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+                    Pumili ng Download Quality
+                  </div>
+                  {movie.qualityAvailable.map((quality) => (
+                    <button
+                      key={quality}
+                      onClick={() => {
+                        setSelectedQuality(quality);
+                        handleDownloadClick();
+                      }}
+                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-medium flex items-center justify-between transition-colors ${
+                        selectedQuality === quality
+                          ? 'bg-[#E50914] text-white'
+                          : 'bg-neutral-900 text-neutral-200 hover:bg-neutral-800'
+                      }`}
+                    >
+                      <span>{quality}</span>
+                      <span className="text-[10px] opacity-80">
+                        {quality.includes('4K') ? '~1.2 GB' : quality.includes('1080p') ? '~650 MB' : '~350 MB'}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Watchlist Toggle */}
             <button
@@ -158,6 +215,13 @@ export const MovieDetailModal: React.FC<MovieDetailModalProps> = ({
                       >
                         <Play className="w-3.5 h-3.5 fill-black" />
                       </button>
+                      <button
+                        onClick={() => handleDownloadClick(ep)}
+                        className="p-2 rounded-full bg-neutral-800 text-neutral-300 hover:text-white border border-neutral-700 active:scale-95"
+                        title="I-download ang Episode"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -169,9 +233,5 @@ export const MovieDetailModal: React.FC<MovieDetailModalProps> = ({
     </div>
   );
 };
-
-
-
-
 
 

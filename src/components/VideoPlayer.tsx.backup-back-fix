@@ -45,62 +45,6 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [showSubtitleMenu, setShowSubtitleMenu] = useState(false);
   const [isScreenLocked, setIsScreenLocked] = useState(false);
 
-  // Keep Back navigation inside PinoySineHub while the player is open.
-  const playerHistoryActiveRef = useRef(false);
-  const closingPlayerRef = useRef(false);
-
-  useEffect(() => {
-    if (playerHistoryActiveRef.current) return;
-
-    playerHistoryActiveRef.current = true;
-    closingPlayerRef.current = false;
-
-    const currentState = window.history.state || {};
-
-    window.history.pushState(
-      {
-        ...currentState,
-        __pinoySineHubVideoPlayer: true,
-      },
-      '',
-      window.location.href
-    );
-
-    const handlePlayerBack = () => {
-      if (closingPlayerRef.current) return;
-
-      // Restore the player history entry immediately.
-      // This prevents an iframe/ad navigation from sending
-      // the main PinoySineHub page back to its homepage.
-      window.history.pushState(
-        {
-          ...(window.history.state || {}),
-          __pinoySineHubVideoPlayer: true,
-        },
-        '',
-        window.location.href
-      );
-
-      playerHistoryActiveRef.current = false;
-      onClose();
-    };
-
-    window.addEventListener('popstate', handlePlayerBack);
-
-    return () => {
-      window.removeEventListener('popstate', handlePlayerBack);
-
-      if (
-        playerHistoryActiveRef.current &&
-        window.history.state?.__pinoySineHubVideoPlayer
-      ) {
-        closingPlayerRef.current = true;
-        playerHistoryActiveRef.current = false;
-        window.history.back();
-      }
-    };
-  }, [onClose]);
-
   // Hide controls after inactivity
   useEffect(() => {
     let timeout: any;
@@ -438,6 +382,4 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     </div>
   );
 };
-
-
 

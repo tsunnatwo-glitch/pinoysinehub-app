@@ -22,7 +22,6 @@ interface SettingsModalProps {
   onOpenAuth: () => void;
   onLogout: () => void;
   onOpenOwnerDashboard: () => void;
-  onClearDownloads: () => void;
   isOwner?: boolean;
 }
 
@@ -33,12 +32,8 @@ export const ProfileModal: React.FC<SettingsModalProps> = ({
   onOpenAuth,
   onLogout,
   onOpenOwnerDashboard,
-  onClearDownloads,
   isOwner = false,
 }) => {
-  const [downloadWifiOnly, setDownloadWifiOnly] = useState(true);
-  const [smartDownloads, setSmartDownloads] = useState(true);
-  const [defaultQuality, setDefaultQuality] = useState<QualityTier>('HD (720p)');
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   if (!isOpen) return null;
@@ -146,83 +141,7 @@ export const ProfileModal: React.FC<SettingsModalProps> = ({
           )}
         </div>
 
-        {/* Streaming & Download Settings */}
-        <div className="space-y-3 text-xs">
-          <h3 className="font-bold text-neutral-400 uppercase tracking-wider">
-            Download at Offline Setting
-          </h3>
-
-          {/* Wi-Fi Only */}
-          <div className="flex items-center justify-between p-3 rounded-xl bg-neutral-850 border border-neutral-800">
-            <div>
-              <span className="font-semibold block text-neutral-200">I-download sa Wi-Fi Lamang</span>
-              <span className="text-[11px] text-neutral-400">Proteksyon laban sa mobile data charges</span>
-            </div>
-            <button
-              onClick={() => setDownloadWifiOnly(!downloadWifiOnly)}
-              className={`w-11 h-6 rounded-full transition-colors relative ${
-                downloadWifiOnly ? 'bg-[#E50914]' : 'bg-neutral-700'
-              }`}
-            >
-              <div
-                className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-1 ${
-                  downloadWifiOnly ? 'right-1' : 'left-1'
-                }`}
-              />
-            </button>
-          </div>
-
-          {/* Smart Downloads */}
-          <div className="flex items-center justify-between p-3 rounded-xl bg-neutral-850 border border-neutral-800">
-            <div>
-              <span className="font-semibold block text-neutral-200">Smart Downloads</span>
-              <span className="text-[11px] text-neutral-400">Kusang ida-download ang susunod na episode</span>
-            </div>
-            <button
-              onClick={() => setSmartDownloads(!smartDownloads)}
-              className={`w-11 h-6 rounded-full transition-colors relative ${
-                smartDownloads ? 'bg-[#E50914]' : 'bg-neutral-700'
-              }`}
-            >
-              <div
-                className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-1 ${
-                  smartDownloads ? 'right-1' : 'left-1'
-                }`}
-              />
-            </button>
-          </div>
-
-          {/* Default Download Quality */}
-          <div className="p-3 rounded-xl bg-neutral-850 border border-neutral-800">
-            <span className="font-semibold block text-neutral-200 mb-2">Default Video Quality</span>
-            <div className="grid grid-cols-3 gap-2">
-              {(['SD (480p)', 'HD (720p)', 'FHD (1080p)'] as QualityTier[]).map((q) => (
-                <button
-                  key={q}
-                  onClick={() => setDefaultQuality(q)}
-                  className={`p-2 rounded-lg font-bold text-center transition-colors ${
-                    defaultQuality === q
-                      ? 'bg-[#E50914] text-white'
-                      : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800'
-                  }`}
-                >
-                  {q.split(' ')[0]}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Clear downloads button */}
-        <button
-          onClick={onClearDownloads}
-          className="w-full py-2.5 rounded-xl bg-neutral-850 hover:bg-red-950/60 text-red-400 hover:text-red-300 font-bold text-xs flex items-center justify-center gap-2 border border-neutral-800 transition-colors"
-        >
-          <Trash2 className="w-4 h-4" />
-          <span>Linisin ang Lahat ng Offline Downloads</span>
-        </button>
-
-        {/* Save button */}
+          {/* Save button */}
         <button
           onClick={handleSave}
           className="w-full py-3 rounded-xl bg-white text-black font-extrabold text-xs sm:text-sm hover:bg-neutral-200 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg"
@@ -234,3 +153,4 @@ export const ProfileModal: React.FC<SettingsModalProps> = ({
     </div>
   );
 };
+

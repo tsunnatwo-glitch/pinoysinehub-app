@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { Sparkles, Play, Download, ThumbsUp, RefreshCw, Film, Compass, Heart } from 'lucide-react';
-import { Movie, AiRecommendationResult, DownloadedItem } from '../types';
+import { Sparkles, Play, ThumbsUp, RefreshCw, Film, Compass, Heart } from 'lucide-react';
+import { Movie, AiRecommendationResult } from '../types';
 import { MOVIES_CATALOG } from '../data/catalog';
 
 interface AiRecommendationsViewProps {
   onPlayMovie: (movie: Movie) => void;
   onSelectMovie: (movie: Movie) => void;
-  onStartDownload: (movie: Movie) => void;
-  downloadedMovieIds: string[];
 }
 
 const PRESET_MOODS = [
@@ -23,8 +21,6 @@ const PRESET_MOODS = [
 export const AiRecommendationsView: React.FC<AiRecommendationsViewProps> = ({
   onPlayMovie,
   onSelectMovie,
-  onStartDownload,
-  downloadedMovieIds,
 }) => {
   const [selectedMood, setSelectedMood] = useState(PRESET_MOODS[0]);
   const [customMoodInput, setCustomMoodInput] = useState('');
@@ -172,7 +168,6 @@ export const AiRecommendationsView: React.FC<AiRecommendationsViewProps> = ({
       <div className="space-y-4">
         {recommendations.map((rec) => {
           const matchedMovie = MOVIES_CATALOG.find((m) => m.id === rec.movieId) || MOVIES_CATALOG[0];
-          const isDownloaded = downloadedMovieIds.includes(matchedMovie.id);
 
           return (
             <div
@@ -225,18 +220,6 @@ export const AiRecommendationsView: React.FC<AiRecommendationsViewProps> = ({
                   <Play className="w-3.5 h-3.5 fill-black" />
                   <span>I-play</span>
                 </button>
-
-                <button
-                  onClick={() => onStartDownload(matchedMovie)}
-                  className={`p-2 rounded-xl border transition-all ${
-                    isDownloaded
-                      ? 'bg-emerald-950/60 text-emerald-400 border-emerald-500/40'
-                      : 'bg-neutral-800 text-neutral-300 border-neutral-700 hover:text-white'
-                  }`}
-                  title={isDownloaded ? 'Downloaded Offline' : 'Download for Offline Watching'}
-                >
-                  <Download className="w-4 h-4" />
-                </button>
               </div>
             </div>
           );
@@ -245,3 +228,4 @@ export const AiRecommendationsView: React.FC<AiRecommendationsViewProps> = ({
     </div>
   );
 };
+

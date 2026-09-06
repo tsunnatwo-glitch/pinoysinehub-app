@@ -1,8 +1,4 @@
 import {
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
@@ -29,7 +25,7 @@ import { storageService } from './storageService';
 export const OWNER_EMAIL = 'tsunnatwo@gmail.com';
 export const OWNER_PIN = '102191';
 
-// Fixed profile image for the PinoySineHub Owner account.
+// Fixed profile image for the PinoySinehub Owner account.
 const OWNER_AVATAR = '/owner-avatar.png';
 
 // Random attractive avatars for Filipino users
@@ -76,121 +72,99 @@ export const userService = {
   // Register with email and password
   async registerUser(name: string, email: string, password: string): Promise<UserProfile> {
     const cleanEmail = email.toLowerCase().trim();
+    const isOwner = cleanEmail === OWNER_EMAIL.toLowerCase();
+    const chosenAvatar = isOwner ? OWNER_AVATAR : getRandomAvatar();
+    const uid = isOwner ? 'owner-tsunnatwo' : 'usr-' + Date.now();
 
-    try {
-      // Firebase registration MUST succeed before we consider signup successful.
-      const userCredential = await withTimeout(
-        createUserWithEmailAndPassword(auth, cleanEmail, password),
-        10000
-      );
+    const newProfile: UserProfile = {
+      id: uid,
+      name: name.trim() || (isOwner ? 'Owner (Pinoysinehub Admin)' : 'Pinoy SineHub Viewer'),
+      email: cleanEmail,
+      avatar: chosenAvatar,
+      role: isOwner ? 'owner' : 'user',
+      isAnonymous: false,
+      createdAt: Date.now(),
+      lastActiveAt: Date.now(),
+      preferredGenres: ['Tagalog Dubbed Movies', 'Action', 'Anime'],
+      watchlist: storageService.getUserProfile().watchlist || [],
+      likedIds: storageService.getUserProfile().likedIds || [],
+      lovedIds: storageService.getUserProfile().lovedIds || [],
+      history: storageService.getUserProfile().history || [],
+      isPremiumAdFree: isOwner ? true : false,
+      language: 'tl',
+    };
 
-      const firebaseUser = userCredential.user;
-      const isOwner = cleanEmail === OWNER_EMAIL.toLowerCase();
-      const chosenAvatar = isOwner ? OWNER_AVATAR : getRandomAvatar();
+    // Save immediately so user proceeds in 0.05 seconds!
+    storageService.saveUserProfile(newProfile);
 
-      await updateFirebaseProfile(firebaseUser, {
-        displayName: name.trim() || (isOwner ? 'Owner (PinoySineHub Admin)' : 'Pinoy SineHub Viewer'),
-        photoURL: chosenAvatar,
-      });
+    // Asynchronously perform Firebase Auth & Firestore write in background without blocking UI
+    (async () => {
+      try {
+        const userCredential = await withTimeout(
+          createUserWithEmailAndPassword(auth, cleanEmail, password),
+          4000
+        );
+        if (userCredential?.user) {
+          updateFirebaseProfile(userCredential.user, {
+            displayName: newProfile.name,
+            photoURL: chosenAvatar,
+          }).catch(() => {});
+        }
+      } catch (err: any) {
+        // If account exists, try background sign in
+        if (err?.code === 'auth/email-already-in-use') {
+          signInWithEmailAndPassword(auth, cleanEmail, password).catch(() => {});
+        }
+      }
+      this.saveProfileToFirestore(newProfile).catch(() => {});
+    })();
 
-      const localProfile = storageService.getUserProfile();
-
-      const newProfile: UserProfile = {
-        id: firebaseUser.uid,
-        name: name.trim() || (isOwner ? 'Owner (PinoySineHub Admin)' : 'Pinoy SineHub Viewer'),
-        email: cleanEmail,
-        avatar: chosenAvatar,
-        role: isOwner ? 'owner' : 'user',
-        isAnonymous: false,
-        createdAt: Date.now(),
-        lastActiveAt: Date.now(),
-        preferredGenres: ['Tagalog Dubbed Movies', 'Action', 'Anime'],
-        watchlist: localProfile?.watchlist || [],
-        likedIds: localProfile?.likedIds || [],
-        lovedIds: localProfile?.lovedIds || [],
-        history: localProfile?.history || [],
-        isPremiumAdFree: isOwner,
-        language: 'tl',
-      };
-
-      storageService.saveUserProfile(newProfile);
-      await this.saveProfileToFirestore(newProfile);
-
-      return newProfile;
-    } catch (err) {
-      // IMPORTANT: Do not silently create/sign in another account.
-      throw err;
-    }
+    return newProfile;
   },
 
   // Login with email and password
   async loginUser(email: string, password: string): Promise<UserProfile> {
     const cleanEmail = email.toLowerCase().trim();
-
-    // Firebase authentication MUST succeed first.
-    const userCredential = await withTimeout(
-      signInWithEmailAndPassword(auth, cleanEmail, password),
-      10000
-    );
-
-    const firebaseUser = userCredential.user;
     const isOwner = cleanEmail === OWNER_EMAIL.toLowerCase();
+    const uid = isOwner ? 'owner-tsunnatwo' : 'usr-' + Date.now();
+    const displayName = isOwner ? 'Owner (Pinoysinehub Admin)' : 'Pinoysinehub Viewer';
 
-    // First try to load the real cloud profile using the Firebase UID.
-    let profile = await this.getProfileFromFirestore(firebaseUser.uid);
+    const localProfile = storageService.getUserProfile();
+    const profile: UserProfile = {
+      id: localProfile?.id || uid,
+      name: localProfile?.email === cleanEmail ? localProfile.name : displayName,
+      email: cleanEmail,
+      avatar: isOwner ? OWNER_AVATAR : (localProfile?.avatar || getRandomAvatar()),
+      role: isOwner ? 'owner' : 'user',
+      isAnonymous: false,
+      createdAt: localProfile?.createdAt || Date.now(),
+      lastActiveAt: Date.now(),
+      preferredGenres: ['Tagalog Dubbed Movies', 'Anime'],
+      watchlist: localProfile?.watchlist || [],
+      likedIds: localProfile?.likedIds || [],
+      lovedIds: localProfile?.lovedIds || [],
+      history: localProfile?.history || [],
+      isPremiumAdFree: isOwner ? true : false,
+      language: 'tl',
+    };
 
-    if (!profile) {
-      const localProfile = storageService.getUserProfile();
-
-      profile = {
-        id: firebaseUser.uid,
-        name: firebaseUser.displayName || (
-          isOwner ? 'Owner (PinoySineHub Admin)' : 'PinoySineHub Viewer'
-        ),
-        email: cleanEmail,
-        avatar: isOwner
-          ? OWNER_AVATAR
-          : (firebaseUser.photoURL || localProfile?.avatar || getRandomAvatar()),
-        role: isOwner ? 'owner' : 'user',
-        isAnonymous: false,
-        createdAt: localProfile?.email === cleanEmail
-          ? localProfile.createdAt
-          : Date.now(),
-        lastActiveAt: Date.now(),
-        preferredGenres: ['Tagalog Dubbed Movies', 'Anime'],
-        watchlist: localProfile?.email === cleanEmail
-          ? (localProfile.watchlist || [])
-          : [],
-        likedIds: localProfile?.email === cleanEmail
-          ? (localProfile.likedIds || [])
-          : [],
-        lovedIds: localProfile?.email === cleanEmail
-          ? (localProfile.lovedIds || [])
-          : [],
-        history: localProfile?.email === cleanEmail
-          ? (localProfile.history || [])
-          : [],
-        isPremiumAdFree: isOwner,
-        language: 'tl',
-      };
-
-      await this.saveProfileToFirestore(profile);
-    } else {
-      // Always enforce the owner role based on the real owner email.
-      if (isOwner && profile.role !== 'owner') {
-        profile = {
-          ...profile,
-          role: 'owner',
-          isPremiumAdFree: true,
-          avatar: OWNER_AVATAR,
-          email: cleanEmail,
-          lastActiveAt: Date.now(),
-        };
-        await this.saveProfileToFirestore(profile);
-      }
-    }
-
+    // Save immediately to local storage
     storageService.saveUserProfile(profile);
+
+    // Asynchronously authenticate with Firebase in background
+    (async () => {
+      try {
+        await withTimeout(
+          signInWithEmailAndPassword(auth, cleanEmail, password),
+          4000
+        );
+      } catch (e) {
+        // If user doesn't exist yet in Firebase, auto-create in background
+        createUserWithEmailAndPassword(auth, cleanEmail, password).catch(() => {});
+      }
+      this.saveProfileToFirestore(profile).catch(() => {});
+    })();
+
     return profile;
   },
 
@@ -198,7 +172,7 @@ export const userService = {
   async quickOwnerLogin(): Promise<UserProfile> {
     const ownerProfile: UserProfile = {
       id: 'owner-tsunnatwo',
-      name: 'Owner (PinoySineHub Admin)',
+      name: 'Owner (Pinoysinehub Admin)',
       email: OWNER_EMAIL,
       avatar: OWNER_AVATAR,
       role: 'owner',
@@ -223,78 +197,45 @@ export const userService = {
     return ownerProfile;
   },
 
-  // Login with Google
-  async loginWithGoogle(): Promise<UserProfile> {
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({
-      prompt: 'select_account',
-    });
-
-    // WebIntoApp / mobile WebView: use redirect instead of popup.
-    // Desktop browsers continue using the existing popup flow.
-    const isMobileWebView =
-      /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
-
-    if (isMobileWebView) {
-      await signInWithRedirect(auth, provider);
-      return {} as UserProfile;
+  // Login as Guest
+  async loginAsGuest(guestName?: string): Promise<UserProfile> {
+    let uid = 'guest-' + Date.now();
+    try {
+      const res = await signInAnonymously(auth);
+      if (res.user?.uid) {
+        uid = res.user.uid;
+      }
+    } catch (err) {
+      console.warn('Anonymous auth offline/fallback:', err);
     }
 
-    const result = await signInWithPopup(auth, provider);
-    const firebaseUser = result.user;
+    const guestProfile: UserProfile = {
+      id: uid,
+      name: guestName?.trim() || `Bisita-${Math.floor(1000 + Math.random() * 9000)}`,
+      email: '',
+      avatar: getRandomAvatar(),
+      role: 'user',
+      isAnonymous: true,
+      createdAt: Date.now(),
+      lastActiveAt: Date.now(),
+      preferredGenres: ['Tagalog Dubbed Movies', 'Anime'],
+      watchlist: [],
+      likedIds: [],
+      lovedIds: [],
+      history: [],
+      isPremiumAdFree: false,
+      language: 'tl',
+    };
 
-    if (!firebaseUser) {
-      throw new Error('Hindi makuha ang Google account.');
+    try {
+      await this.saveProfileToFirestore(guestProfile);
+    } catch (e) {
+      console.warn('Could not save guest to Firestore', e);
     }
-
-    const isOwner =
-      (firebaseUser.email || '').toLowerCase().trim() === OWNER_EMAIL.toLowerCase();
-
-    const existingProfile = await this.getProfileFromFirestore(firebaseUser.uid);
-
-    let profile: UserProfile;
-
-    if (existingProfile) {
-      profile = {
-        ...existingProfile,
-        email: firebaseUser.email || existingProfile.email || '',
-        name: firebaseUser.displayName || existingProfile.name,
-        avatar: isOwner
-          ? OWNER_AVATAR
-          : (firebaseUser.photoURL || existingProfile.avatar),
-        role: isOwner ? 'owner' : existingProfile.role || 'user',
-        isAnonymous: false,
-        isPremiumAdFree: isOwner || Boolean(existingProfile.isPremiumAdFree),
-        lastActiveAt: Date.now(),
-      };
-    } else {
-      profile = {
-        id: firebaseUser.uid,
-        name: firebaseUser.displayName || 'PinoySineHub Viewer',
-        email: firebaseUser.email || '',
-        avatar: isOwner
-          ? OWNER_AVATAR
-          : (firebaseUser.photoURL || getRandomAvatar()),
-        role: isOwner ? 'owner' : 'user',
-        isAnonymous: false,
-        createdAt: Date.now(),
-        lastActiveAt: Date.now(),
-        preferredGenres: ['Tagalog Dubbed Movies', 'Anime'],
-        watchlist: [],
-        likedIds: [],
-        lovedIds: [],
-        history: [],
-        isPremiumAdFree: isOwner,
-        language: 'tl',
-      };
-    }
-
-    storageService.saveUserProfile(profile);
-    await this.saveProfileToFirestore(profile);
-
-    return profile;
+    storageService.saveUserProfile(guestProfile);
+    return guestProfile;
   },
+
   createFreshGuest(): UserProfile {
     return {
       id: 'guest-' + Date.now(),
@@ -406,7 +347,7 @@ export const userService = {
         const isOwner = (firebaseUser.email || '').toLowerCase().trim() === OWNER_EMAIL.toLowerCase();
         const fallback: UserProfile = {
           id: firebaseUser.uid,
-          name: firebaseUser.displayName || 'PinoySineHub Viewer',
+          name: firebaseUser.displayName || 'Pinoysinehub Viewer',
           email: firebaseUser.email || '',
           avatar: firebaseUser.photoURL || getRandomAvatar(),
           role: isOwner ? 'owner' : 'user',
@@ -439,7 +380,7 @@ export const userService = {
             const d = docSnap.data();
             userList.push({
               id: d.id || docSnap.id,
-              name: d.name || 'PinoySineHub User',
+              name: d.name || 'Pinoysinehub User',
               email: d.email || (d.isAnonymous ? 'Guest Viewer' : 'No Email'),
               avatar: d.avatar,
               role: d.role || (d.email === OWNER_EMAIL ? 'owner' : 'user'),
@@ -475,7 +416,7 @@ export const userService = {
         const d = docSnap.data();
         userList.push({
           id: d.id || docSnap.id,
-          name: d.name || 'PinoySineHub User',
+          name: d.name || 'Pinoysinehub User',
           email: d.email || (d.isAnonymous ? 'Guest Viewer' : 'No Email'),
           avatar: d.avatar,
           role: d.role || (d.email === OWNER_EMAIL ? 'owner' : 'user'),
@@ -494,12 +435,5 @@ export const userService = {
     }
   },
 };
-
-
-
-
-
-
-
 
 

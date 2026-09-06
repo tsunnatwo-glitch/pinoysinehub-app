@@ -20,10 +20,9 @@ interface AddMovieFormProps {
   editingMovie?: Movie | null;
   isOpen: boolean;
   onClose: () => void;
-  episodeMode?: boolean;
 }
 
-export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdateMovie, editingMovie, isOpen, onClose, episodeMode = false }) => {
+export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdateMovie, editingMovie, isOpen, onClose }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<AppCategory>('Tagalog Dubbed Movies');
@@ -44,7 +43,6 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
   const backdropFileInputRef = useRef<HTMLInputElement>(null);
 
   const isEditing = Boolean(editingMovie);
-  const isEpisodeMode = Boolean(episodeMode && editingMovie?.type === 'series');
 
   useEffect(() => {
     if (!isOpen) return;
@@ -662,7 +660,6 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
     </div>
   );
 };
-
 
 
 

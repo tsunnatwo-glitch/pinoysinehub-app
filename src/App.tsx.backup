@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -8,7 +8,6 @@ import confetti from 'canvas-confetti';
 import { Movie, Episode, DownloadedItem, UserProfile, QualityTier } from './types';
 import { MOVIES_CATALOG, GENRE_CATEGORIES } from './data/catalog';
 import { storageService } from './services/storageService';
-import { movieService } from './services/movieService';
 import { userService, OWNER_EMAIL } from './services/userService';
 
 import { Navbar } from './components/Navbar';
@@ -30,40 +29,12 @@ export default function App() {
   const [selectedGenreCategory, setSelectedGenreCategory] = useState<string>('All');
 
   // Persistence state
-  const [customMovies, setCustomMovies] = useState<Movie[]>([]);
+  const [customMovies, setCustomMovies] = useState<Movie[]>(() => storageService.getCustomMovies());
   const [deletedMovieIds, setDeletedMovieIds] = useState<string[]>(() => storageService.getDeletedMovieIds());
- const [userProfile, setUserProfile] = useState<UserProfile>(() => userService.createFreshGuest());
-const [authReady, setAuthReady] = useState<boolean>(false);
+  const [userProfile, setUserProfile] = useState<UserProfile>(() => storageService.getUserProfile());
   const [downloads, setDownloads] = useState<DownloadedItem[]>(() => storageService.getDownloads());
   const [isOfflineMode, setIsOfflineMode] = useState<boolean>(() => storageService.getOfflineMode());
 
-  // Load custom movies from Firestore
-  useEffect(() => {
-    let cancelled = false;
-
-    const loadCustomMovies = async () => {
-      try {
-        const movies = await movieService.getCustomMovies();
-
-        if (!cancelled) {
-          setCustomMovies(movies);
-        }
-      } catch (error) {
-        console.error('Failed to load custom movies from Firestore:', error);
-
-        // Fallback to localStorage if Firestore is unavailable
-        if (!cancelled) {
-          setCustomMovies(storageService.getCustomMovies());
-        }
-      }
-    };
-
-    loadCustomMovies();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
   // Modals state
   const [selectedMovieForDetails, setSelectedMovieForDetails] = useState<Movie | null>(null);
   const [activePlayingMovie, setActivePlayingMovie] = useState<Movie | null>(null);
@@ -84,37 +55,35 @@ const [authReady, setAuthReady] = useState<boolean>(false);
   const [downloadToast, setDownloadToast] = useState<{ title: string; progress: number } | null>(null);
 
   // Auth sync with Firebase
-useEffect(() => {
-  const unsubscribe = userService.subscribeAuth((cloudUser) => {
-    if (cloudUser) {
-      setUserProfile(cloudUser);
-      storageService.saveUserProfile(cloudUser);
-    } else {
-      // No Firebase account: authentication is required
-      const guest = userService.createFreshGuest();
-      setUserProfile(guest);
-      setIsAuthOpen(true);
-    }
+  useEffect(() => {
+    const unsubscribe = userService.subscribeAuth((cloudUser) => {
+      if (cloudUser) {
+        setUserProfile(cloudUser);
+        storageService.saveUserProfile(cloudUser);
+      } else {
+        // If logged out from Firebase
+        const currentLocal = storageService.getUserProfile();
+        if (currentLocal.email) {
+          // If we had an email before, reset to fresh guest
+          const guest = userService.createFreshGuest();
+          setUserProfile(guest);
+          storageService.saveUserProfile(guest);
+        }
+      }
+    });
 
-    setAuthReady(true);
-  });
-
-  return () => {
-    if (typeof unsubscribe === 'function') {
-      unsubscribe();
-    }
-  };
-}, []);
+    return () => {
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
+    };
+  }, []);
 
   // Save changes locally and sync to Cloud
   useEffect(() => {
-    if (!authReady || userProfile.isAnonymous) {
-      return;
-    }
-
     storageService.saveUserProfile(userProfile);
     userService.syncUserProfileToCloud(userProfile).catch(() => {});
-  }, [userProfile, authReady]);
+  }, [userProfile]);
 
   useEffect(() => {
     storageService.saveCustomMovies(customMovies);
@@ -137,13 +106,18 @@ useEffect(() => {
 
   // Helper arrays for rows based on 4 exact Tagalog categories
   const downloadedMovieIds = downloads.map((d) => d.movieId);
-  const tagalogDubbedMovies = fullCatalog.filter((m) => m.category === 'Tagalog Dubbed Movies');
-  const tagalogDubbedSeries = fullCatalog.filter((m) => m.category === 'Tagalog Dubbed Tv Series');
-  const tagalogDubbedAnimeMovies = fullCatalog.filter((m) => m.category === 'Tagalog Dubbed Anime Movies');
-  const tagalogDubbedAnimeSeries = fullCatalog.filter((m) => m.category === 'Tagalog Dubbed Anime Tv Series');
-
-  const pinoyMovies = fullCatalog.filter((m) => m.category === 'Pinoy Movies');
-  const encodeByReborn = fullCatalog.filter((m) => m.category === 'Encode By Reborn');
+  const tagalogDubbedMovies = fullCatalog.filter(
+    (m) => m.category === 'Tagalog Dubbed Movies' || (m.type === 'movie' && !m.genres?.includes('Anime'))
+  );
+  const tagalogDubbedSeries = fullCatalog.filter(
+    (m) => m.category === 'Tagalog Dubbed Tv Series' || (m.type === 'series' && !m.genres?.includes('Anime'))
+  );
+  const tagalogDubbedAnimeMovies = fullCatalog.filter(
+    (m) => m.category === 'Tagalog Dubbed Anime Movies' || (m.genres?.includes('Anime') && m.type === 'movie')
+  );
+  const tagalogDubbedAnimeSeries = fullCatalog.filter(
+    (m) => m.category === 'Tagalog Dubbed Anime Tv Series' || (m.genres?.includes('Anime') && m.type === 'series')
+  );
 
   const top10Movies = fullCatalog.filter((m) => m.isTop10).sort((a, b) => (a.rank || 99) - (b.rank || 99));
 
@@ -156,42 +130,39 @@ useEffect(() => {
   const filteredCatalog =
     selectedGenreCategory === 'All'
       ? []
-      : fullCatalog.filter((m) => m.category === selectedGenreCategory);
-
+      : fullCatalog.filter(
+          (m) =>
+            m.category === selectedGenreCategory ||
+            (selectedGenreCategory === 'Tagalog Dubbed Movies' && m.type === 'movie' && !m.genres?.includes('Anime')) ||
+            (selectedGenreCategory === 'Tagalog Dubbed Tv Series' && m.type === 'series' && !m.genres?.includes('Anime')) ||
+            (selectedGenreCategory === 'Tagalog Dubbed Anime Movies' && m.genres?.includes('Anime') && m.type === 'movie') ||
+            (selectedGenreCategory === 'Tagalog Dubbed Anime Tv Series' && m.genres?.includes('Anime') && m.type === 'series')
+        );
 
   // Actions
   const handlePlayMovie = (movie: Movie, episode?: Episode) => {
-  // Require a real Firebase account before playing
-  if (!authReady || userProfile.isAnonymous || !userProfile.email?.trim()) {
-    alert('Kailangan mong mag-sign up o mag-log in muna bago manood.');
-    setIsAuthOpen(true);
-    return;
-  }
+    setActivePlayingMovie(movie);
+    setActivePlayingEpisode(episode);
+    setIsPlayingDownloadedItem(false);
 
-  setActivePlayingMovie(movie);
-  setActivePlayingEpisode(episode);
-  setIsPlayingDownloadedItem(false);
-
-  // Update history
-  const existingIndex = userProfile.history.findIndex((h) => h.movieId === movie.id);
-  let updatedHistory = [...userProfile.history];
-
-  if (existingIndex >= 0) {
-    updatedHistory[existingIndex] = {
-      ...updatedHistory[existingIndex],
-      watchedAt: Date.now(),
-    };
-  } else {
-    updatedHistory.unshift({
-      movieId: movie.id,
-      watchedAt: Date.now(),
-      progressPercentage: 15,
-      lastPositionSec: 300,
-    });
-  }
-
-  setUserProfile({ ...userProfile, history: updatedHistory });
-};
+    // Update history
+    const existingIndex = userProfile.history.findIndex((h) => h.movieId === movie.id);
+    let updatedHistory = [...userProfile.history];
+    if (existingIndex >= 0) {
+      updatedHistory[existingIndex] = {
+        ...updatedHistory[existingIndex],
+        watchedAt: Date.now(),
+      };
+    } else {
+      updatedHistory.unshift({
+        movieId: movie.id,
+        watchedAt: Date.now(),
+        progressPercentage: 15,
+        lastPositionSec: 300,
+      });
+    }
+    setUserProfile({ ...userProfile, history: updatedHistory });
+  };
 
   const handlePlayDownloadedItem = (item: DownloadedItem) => {
     const movie = fullCatalog.find((m) => m.id === item.movieId) || {
@@ -236,7 +207,7 @@ useEffect(() => {
       movieId: movie.id,
       episodeId: episode?.id,
       title: episode ? `${movie.title}: ${episode.title}` : movie.title,
-      subTitle: episode ? episode.duration : `${movie.duration} â€¢ ${movie.audioTracks[0] || 'Original Audio'}`,
+      subTitle: episode ? episode.duration : `${movie.duration} • ${movie.audioTracks[0] || 'Original Audio'}`,
       poster: movie.poster,
       backdrop: episode?.thumbnail || movie.backdrop,
       duration: episode ? episode.duration : movie.duration,
@@ -272,46 +243,27 @@ useEffect(() => {
     }, 600);
   };
 
-  const handleAddCustomMovie = async (newMovie: Movie) => {
-    try {
-      await movieService.saveMovie(newMovie);
-      setCustomMovies((prev) => [newMovie, ...prev]);
-      setDeletedMovieIds((prev) => prev.filter((id) => id !== newMovie.id));
-    } catch (error) {
-      console.error('Failed to save movie to Firestore:', error);
-      alert('Hindi na-save ang movie sa cloud. Pakisubukan ulit.');
-    }
+  const handleAddCustomMovie = (newMovie: Movie) => {
+    setCustomMovies((prev) => [newMovie, ...prev]);
+    setDeletedMovieIds((prev) => prev.filter((id) => id !== newMovie.id));
   };
 
-  const handleUpdateCustomMovie = async (updatedMovie: Movie) => {
-    try {
-      await movieService.saveMovie(updatedMovie);
-      setCustomMovies((prev) => prev.map((movie) => movie.id === updatedMovie.id ? updatedMovie : movie));
-      setDeletedMovieIds((prev) => prev.filter((id) => id !== updatedMovie.id));
-      setSelectedMovieForDetails((current) => current?.id === updatedMovie.id ? updatedMovie : current);
-      setActivePlayingMovie((current) => current?.id === updatedMovie.id ? updatedMovie : current);
-      setActivePlayingEpisode((current) => {
-        if (!current || !updatedMovie.episodes) return current;
-        return updatedMovie.episodes.find((episode) => episode.id === current.id) || current;
-      });
-    } catch (error) {
-      console.error('Failed to update movie in Firestore:', error);
-      alert('Hindi na-update ang movie sa cloud. Pakisubukan ulit.');
-    }
+  const handleUpdateCustomMovie = (updatedMovie: Movie) => {
+    setCustomMovies((prev) => prev.map((movie) => movie.id === updatedMovie.id ? updatedMovie : movie));
+    setDeletedMovieIds((prev) => prev.filter((id) => id !== updatedMovie.id));
+    setSelectedMovieForDetails((current) => current?.id === updatedMovie.id ? updatedMovie : current);
+    setActivePlayingMovie((current) => current?.id === updatedMovie.id ? updatedMovie : current);
+    setActivePlayingEpisode((current) => {
+      if (!current || !updatedMovie.episodes) return current;
+      return updatedMovie.episodes.find((episode) => episode.id === current.id) || current;
+    });
   };
 
-  const handleDeleteMovie = async (movieId: string) => {
+  const handleDeleteMovie = (movieId: string) => {
     const isCustomMovie = customMovies.some((m) => m.id === movieId);
 
     if (isCustomMovie) {
-      try {
-        await movieService.deleteMovie(movieId);
-        setCustomMovies((prev) => prev.filter((m) => m.id !== movieId));
-      } catch (error) {
-        console.error('Failed to delete movie from Firestore:', error);
-        alert('Hindi na-delete ang movie sa cloud. Pakisubukan ulit.');
-        return;
-      }
+      setCustomMovies((prev) => prev.filter((m) => m.id !== movieId));
     } else {
       setDeletedMovieIds((prev) => (prev.includes(movieId) ? prev : [...prev, movieId]));
     }
@@ -351,6 +303,9 @@ useEffect(() => {
   };
 
   const handleLogout = () => {
+    const guestProfile = userService.createFreshGuest();
+    setUserProfile(guestProfile);
+    storageService.saveUserProfile(guestProfile);
     setIsProfileOpen(false);
     userService.signOutUser().catch(() => {});
   };
@@ -457,7 +412,7 @@ useEffect(() => {
             {/* Custom User-Added Movies Row (if any) */}
             {customMovies.length > 0 && selectedGenreCategory === 'All' && (
               <MovieRow
-                title="â­ Aking Mga Idinagdag na Video & Pelikula"
+                title="⭐ Aking Mga Idinagdag na Video & Pelikula"
                 subtitle="Mga custom video link at poster na iyong in-upload"
                 movies={customMovies}
                 onSelectMovie={(m) => setSelectedMovieForDetails(m)}
@@ -487,7 +442,7 @@ useEffect(() => {
             {/* Top 10 Today in Philippines Row */}
             {selectedGenreCategory === 'All' && (
               <MovieRow
-                title="Top 10 Pelikula sa Pilipinas Ngayon ðŸ‡µðŸ‡­"
+                title="Top 10 Pelikula sa Pilipinas Ngayon 🇵🇭"
                 subtitle="Ang pinaka-patok na pinapanood sa bansa"
                 movies={top10Movies}
                 isTop10={true}
@@ -503,7 +458,7 @@ useEffect(() => {
             {/* 1. Tagalog Dubbed Movies Row */}
             {selectedGenreCategory === 'All' && tagalogDubbedMovies.length > 0 && (
               <MovieRow
-                title="ðŸŽ¬ TAGALOG DUBBED MOVIES"
+                title="🎬 TAGALOG DUBBED MOVIES"
                 subtitle="Blockbuster at international movies na may Tagalog boses"
                 movies={tagalogDubbedMovies}
                 onSelectMovie={(m) => setSelectedMovieForDetails(m)}
@@ -518,7 +473,7 @@ useEffect(() => {
             {/* 2. Tagalog Dubbed Tv Series Row */}
             {selectedGenreCategory === 'All' && tagalogDubbedSeries.length > 0 && (
               <MovieRow
-                title="ðŸ“º TAGALOG DUBBED TV SERIES"
+                title="📺 TAGALOG DUBBED TV SERIES"
                 subtitle="Kumpletong episodes ng mga teleserye at foreign drama sa Tagalog"
                 movies={tagalogDubbedSeries}
                 onSelectMovie={(m) => setSelectedMovieForDetails(m)}
@@ -533,7 +488,7 @@ useEffect(() => {
             {/* 3. Tagalog Dubbed Anime Movies Row */}
             {selectedGenreCategory === 'All' && tagalogDubbedAnimeMovies.length > 0 && (
               <MovieRow
-                title="ðŸ™ TAGALOG DUBBED ANIME MOVIES"
+                title="🍙 TAGALOG DUBBED ANIME MOVIES"
                 subtitle="Epic Japanese animation movies na naka-Tagalog Dubbed"
                 movies={tagalogDubbedAnimeMovies}
                 onSelectMovie={(m) => setSelectedMovieForDetails(m)}
@@ -548,7 +503,7 @@ useEffect(() => {
             {/* 4. Tagalog Dubbed Anime Tv Series Row */}
             {selectedGenreCategory === 'All' && tagalogDubbedAnimeSeries.length > 0 && (
               <MovieRow
-                title="âš¡ TAGALOG DUBBED ANIME TV SERIES"
+                title="⚡ TAGALOG DUBBED ANIME TV SERIES"
                 subtitle="Shonen, mecha, at supernatural anime series na naka-Tagalog boses"
                 movies={tagalogDubbedAnimeSeries}
                 onSelectMovie={(m) => setSelectedMovieForDetails(m)}
@@ -561,36 +516,6 @@ useEffect(() => {
             )}
           </div>
         )}
-
-
-            {/* 5. Pinoy Movies Row */}
-            {selectedGenreCategory === 'All' && pinoyMovies.length > 0 && (
-              <MovieRow
-                title="???? PINOY MOVIES"
-                subtitle="Mga pelikulang Pilipino para sa mga Pinoy movie lovers"
-                movies={pinoyMovies}
-                onSelectMovie={(m) => setSelectedMovieForDetails(m)}
-                onPlayMovie={handlePlayMovie}
-                onStartDownload={handleStartDownload}
-                downloadedMovieIds={downloadedMovieIds}
-                watchlist={userProfile.watchlist}
-                onToggleWatchlist={handleToggleWatchlist}
-              />
-            )}
-              {/* 6. Encode By Reborn Row */}
-              {selectedGenreCategory === 'All' && encodeByReborn.length > 0 && (
-                <MovieRow
-                  title="?? ENCODE BY REBORN"
-                  subtitle="Mga video at pelikulang Encode By Reborn"
-                  movies={encodeByReborn}
-                  onSelectMovie={(m) => setSelectedMovieForDetails(m)}
-                  onPlayMovie={handlePlayMovie}
-                  onStartDownload={handleStartDownload}
-                  downloadedMovieIds={downloadedMovieIds}
-                  watchlist={userProfile.watchlist}
-                  onToggleWatchlist={handleToggleWatchlist}
-                />
-              )}
 
         {/* TAB: WATCHLIST */}
         {activeTab === 'watchlist' && (
@@ -728,24 +653,3 @@ useEffect(() => {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

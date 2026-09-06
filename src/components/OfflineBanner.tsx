@@ -1,16 +1,14 @@
 import React from 'react';
-import { WifiOff, DownloadCloud, ArrowRight } from 'lucide-react';
+import { WifiOff, ArrowRight } from 'lucide-react';
 
 interface OfflineBannerProps {
   isOfflineMode: boolean;
   onToggleOnline: () => void;
-  onGoToDownloads: () => void;
 }
 
 export const OfflineBanner: React.FC<OfflineBannerProps> = ({
   isOfflineMode,
   onToggleOnline,
-  onGoToDownloads,
 }) => {
   if (!isOfflineMode) return null;
 
@@ -22,19 +20,10 @@ export const OfflineBanner: React.FC<OfflineBannerProps> = ({
         </span>
         <div>
           <span className="font-bold text-amber-300">Offline Mode Active:</span>{' '}
-          <span className="text-amber-100/90">Naka-disconnect sa internet. Ang mga na-download na palabas lang ang pwedeng i-play nang walang data.</span>
         </div>
       </div>
 
       <div className="flex items-center gap-2 ml-3 shrink-0">
-        <button
-          id="offline-view-downloads-btn"
-          onClick={onGoToDownloads}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-500 text-black font-semibold hover:bg-amber-400 transition-colors text-[11px]"
-        >
-          <DownloadCloud className="w-3 h-3" />
-          <span>My Downloads</span>
-        </button>
         <button
           id="offline-reconnect-btn"
           onClick={onToggleOnline}
@@ -46,3 +35,4 @@ export const OfflineBanner: React.FC<OfflineBannerProps> = ({
     </div>
   );
 };
+

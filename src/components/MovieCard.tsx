@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Plus, Check, Download, Info, Sparkles } from 'lucide-react';
+import { Play, Plus, Check, Info, Sparkles } from 'lucide-react';
 import { Movie } from '../types';
 
 interface MovieCardProps {
@@ -7,8 +7,6 @@ interface MovieCardProps {
   rank?: number;
   onSelect: (movie: Movie) => void;
   onPlay: (movie: Movie) => void;
-  onStartDownload: (movie: Movie) => void;
-  isDownloaded: boolean;
   isInWatchlist: boolean;
   onToggleWatchlist: (movieId: string) => void;
 }
@@ -18,8 +16,6 @@ export const MovieCard: React.FC<MovieCardProps> = ({
   rank,
   onSelect,
   onPlay,
-  onStartDownload,
-  isDownloaded,
   isInWatchlist,
   onToggleWatchlist,
 }) => {
@@ -55,11 +51,6 @@ export const MovieCard: React.FC<MovieCardProps> = ({
               📺 {movie.episodes.length} Episodes
             </span>
           )}
-          {isDownloaded && (
-            <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-600 text-white shadow-sm flex items-center gap-0.5">
-              <Check className="w-2.5 h-2.5" /> Offline
-            </span>
-          )}
         </div>
 
         {/* Hover / Overlay Details */}
@@ -86,21 +77,6 @@ export const MovieCard: React.FC<MovieCardProps> = ({
             >
               {isInWatchlist ? <Check className="w-3.5 h-3.5 text-red-500" /> : <Plus className="w-3.5 h-3.5" />}
             </button>
-
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onStartDownload(movie);
-              }}
-              className={`p-1.5 rounded-full border transition-colors ${
-                isDownloaded
-                  ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500'
-                  : 'bg-neutral-800/80 text-white border-neutral-600 hover:border-white'
-              }`}
-              title={isDownloaded ? 'Downloaded Offline' : 'Download for Offline Watching'}
-            >
-              {isDownloaded ? <Check className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
-            </button>
           </div>
 
           <p className="text-[11px] font-bold text-white line-clamp-1 leading-tight">{movie.title}</p>
@@ -118,3 +94,5 @@ export const MovieCard: React.FC<MovieCardProps> = ({
     </div>
   );
 };
+
+

@@ -1,8 +1,6 @@
-import {
+﻿import {
   GoogleAuthProvider,
   signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
@@ -29,7 +27,7 @@ import { storageService } from './storageService';
 export const OWNER_EMAIL = 'tsunnatwo@gmail.com';
 export const OWNER_PIN = '102191';
 
-// Fixed profile image for the PinoySineHub Owner account.
+// Fixed profile image for the PinoySinehub Owner account.
 const OWNER_AVATAR = '/owner-avatar.png';
 
 // Random attractive avatars for Filipino users
@@ -89,7 +87,7 @@ export const userService = {
       const chosenAvatar = isOwner ? OWNER_AVATAR : getRandomAvatar();
 
       await updateFirebaseProfile(firebaseUser, {
-        displayName: name.trim() || (isOwner ? 'Owner (PinoySineHub Admin)' : 'Pinoy SineHub Viewer'),
+        displayName: name.trim() || (isOwner ? 'Owner (Pinoysinehub Admin)' : 'Pinoy SineHub Viewer'),
         photoURL: chosenAvatar,
       });
 
@@ -97,7 +95,7 @@ export const userService = {
 
       const newProfile: UserProfile = {
         id: firebaseUser.uid,
-        name: name.trim() || (isOwner ? 'Owner (PinoySineHub Admin)' : 'Pinoy SineHub Viewer'),
+        name: name.trim() || (isOwner ? 'Owner (Pinoysinehub Admin)' : 'Pinoy SineHub Viewer'),
         email: cleanEmail,
         avatar: chosenAvatar,
         role: isOwner ? 'owner' : 'user',
@@ -145,7 +143,7 @@ export const userService = {
       profile = {
         id: firebaseUser.uid,
         name: firebaseUser.displayName || (
-          isOwner ? 'Owner (PinoySineHub Admin)' : 'PinoySineHub Viewer'
+          isOwner ? 'Owner (Pinoysinehub Admin)' : 'Pinoysinehub Viewer'
         ),
         email: cleanEmail,
         avatar: isOwner
@@ -198,7 +196,7 @@ export const userService = {
   async quickOwnerLogin(): Promise<UserProfile> {
     const ownerProfile: UserProfile = {
       id: 'owner-tsunnatwo',
-      name: 'Owner (PinoySineHub Admin)',
+      name: 'Owner (Pinoysinehub Admin)',
       email: OWNER_EMAIL,
       avatar: OWNER_AVATAR,
       role: 'owner',
@@ -230,17 +228,6 @@ export const userService = {
       prompt: 'select_account',
     });
 
-    // WebIntoApp / mobile WebView: use redirect instead of popup.
-    // Desktop browsers continue using the existing popup flow.
-    const isMobileWebView =
-      /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
-
-    if (isMobileWebView) {
-      await signInWithRedirect(auth, provider);
-      return {} as UserProfile;
-    }
-
     const result = await signInWithPopup(auth, provider);
     const firebaseUser = result.user;
 
@@ -271,7 +258,7 @@ export const userService = {
     } else {
       profile = {
         id: firebaseUser.uid,
-        name: firebaseUser.displayName || 'PinoySineHub Viewer',
+        name: firebaseUser.displayName || 'Pinoysinehub Viewer',
         email: firebaseUser.email || '',
         avatar: isOwner
           ? OWNER_AVATAR
@@ -295,6 +282,45 @@ export const userService = {
 
     return profile;
   },
+  // Login as Guest
+  async loginAsGuest(guestName?: string): Promise<UserProfile> {
+    let uid = 'guest-' + Date.now();
+    try {
+      const res = await signInAnonymously(auth);
+      if (res.user?.uid) {
+        uid = res.user.uid;
+      }
+    } catch (err) {
+      console.warn('Anonymous auth offline/fallback:', err);
+    }
+
+    const guestProfile: UserProfile = {
+      id: uid,
+      name: guestName?.trim() || `Bisita-${Math.floor(1000 + Math.random() * 9000)}`,
+      email: '',
+      avatar: getRandomAvatar(),
+      role: 'user',
+      isAnonymous: true,
+      createdAt: Date.now(),
+      lastActiveAt: Date.now(),
+      preferredGenres: ['Tagalog Dubbed Movies', 'Anime'],
+      watchlist: [],
+      likedIds: [],
+      lovedIds: [],
+      history: [],
+      isPremiumAdFree: false,
+      language: 'tl',
+    };
+
+    try {
+      await this.saveProfileToFirestore(guestProfile);
+    } catch (e) {
+      console.warn('Could not save guest to Firestore', e);
+    }
+    storageService.saveUserProfile(guestProfile);
+    return guestProfile;
+  },
+
   createFreshGuest(): UserProfile {
     return {
       id: 'guest-' + Date.now(),
@@ -406,7 +432,7 @@ export const userService = {
         const isOwner = (firebaseUser.email || '').toLowerCase().trim() === OWNER_EMAIL.toLowerCase();
         const fallback: UserProfile = {
           id: firebaseUser.uid,
-          name: firebaseUser.displayName || 'PinoySineHub Viewer',
+          name: firebaseUser.displayName || 'Pinoysinehub Viewer',
           email: firebaseUser.email || '',
           avatar: firebaseUser.photoURL || getRandomAvatar(),
           role: isOwner ? 'owner' : 'user',
@@ -439,7 +465,7 @@ export const userService = {
             const d = docSnap.data();
             userList.push({
               id: d.id || docSnap.id,
-              name: d.name || 'PinoySineHub User',
+              name: d.name || 'Pinoysinehub User',
               email: d.email || (d.isAnonymous ? 'Guest Viewer' : 'No Email'),
               avatar: d.avatar,
               role: d.role || (d.email === OWNER_EMAIL ? 'owner' : 'user'),
@@ -475,7 +501,7 @@ export const userService = {
         const d = docSnap.data();
         userList.push({
           id: d.id || docSnap.id,
-          name: d.name || 'PinoySineHub User',
+          name: d.name || 'Pinoysinehub User',
           email: d.email || (d.isAnonymous ? 'Guest Viewer' : 'No Email'),
           avatar: d.avatar,
           role: d.role || (d.email === OWNER_EMAIL ? 'owner' : 'user'),
@@ -494,10 +520,6 @@ export const userService = {
     }
   },
 };
-
-
-
-
 
 
 

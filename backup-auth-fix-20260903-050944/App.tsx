@@ -90,10 +90,10 @@ useEffect(() => {
       setUserProfile(cloudUser);
       storageService.saveUserProfile(cloudUser);
     } else {
-      // No Firebase account: authentication is required
+      // No Firebase account = guest
       const guest = userService.createFreshGuest();
       setUserProfile(guest);
-      setIsAuthOpen(true);
+      storageService.saveUserProfile(guest);
     }
 
     setAuthReady(true);
@@ -108,13 +108,9 @@ useEffect(() => {
 
   // Save changes locally and sync to Cloud
   useEffect(() => {
-    if (!authReady || userProfile.isAnonymous) {
-      return;
-    }
-
     storageService.saveUserProfile(userProfile);
     userService.syncUserProfileToCloud(userProfile).catch(() => {});
-  }, [userProfile, authReady]);
+  }, [userProfile]);
 
   useEffect(() => {
     storageService.saveCustomMovies(customMovies);
@@ -137,13 +133,20 @@ useEffect(() => {
 
   // Helper arrays for rows based on 4 exact Tagalog categories
   const downloadedMovieIds = downloads.map((d) => d.movieId);
-  const tagalogDubbedMovies = fullCatalog.filter((m) => m.category === 'Tagalog Dubbed Movies');
-  const tagalogDubbedSeries = fullCatalog.filter((m) => m.category === 'Tagalog Dubbed Tv Series');
-  const tagalogDubbedAnimeMovies = fullCatalog.filter((m) => m.category === 'Tagalog Dubbed Anime Movies');
-  const tagalogDubbedAnimeSeries = fullCatalog.filter((m) => m.category === 'Tagalog Dubbed Anime Tv Series');
+  const tagalogDubbedMovies = fullCatalog.filter(
+    (m) => m.category === 'Tagalog Dubbed Movies' || (m.type === 'movie' && !m.genres?.includes('Anime'))
+  );
+  const tagalogDubbedSeries = fullCatalog.filter(
+    (m) => m.category === 'Tagalog Dubbed Tv Series' || (m.type === 'series' && !m.genres?.includes('Anime'))
+  );
+  const tagalogDubbedAnimeMovies = fullCatalog.filter(
+    (m) => m.category === 'Tagalog Dubbed Anime Movies' || (m.genres?.includes('Anime') && m.type === 'movie')
+  );
+  const tagalogDubbedAnimeSeries = fullCatalog.filter(
+    (m) => m.category === 'Tagalog Dubbed Anime Tv Series' || (m.genres?.includes('Anime') && m.type === 'series')
+  );
 
   const pinoyMovies = fullCatalog.filter((m) => m.category === 'Pinoy Movies');
-  const encodeByReborn = fullCatalog.filter((m) => m.category === 'Encode By Reborn');
 
   const top10Movies = fullCatalog.filter((m) => m.isTop10).sort((a, b) => (a.rank || 99) - (b.rank || 99));
 
@@ -156,8 +159,14 @@ useEffect(() => {
   const filteredCatalog =
     selectedGenreCategory === 'All'
       ? []
-      : fullCatalog.filter((m) => m.category === selectedGenreCategory);
-
+      : fullCatalog.filter(
+          (m) =>
+            m.category === selectedGenreCategory ||
+            (selectedGenreCategory === 'Tagalog Dubbed Movies' && m.type === 'movie' && !m.genres?.includes('Anime')) ||
+            (selectedGenreCategory === 'Tagalog Dubbed Tv Series' && m.type === 'series' && !m.genres?.includes('Anime')) ||
+            (selectedGenreCategory === 'Tagalog Dubbed Anime Movies' && m.genres?.includes('Anime') && m.type === 'movie') ||
+            (selectedGenreCategory === 'Tagalog Dubbed Anime Tv Series' && m.genres?.includes('Anime') && m.type === 'series')
+        );
 
   // Actions
   const handlePlayMovie = (movie: Movie, episode?: Episode) => {
@@ -351,6 +360,9 @@ useEffect(() => {
   };
 
   const handleLogout = () => {
+    const guestProfile = userService.createFreshGuest();
+    setUserProfile(guestProfile);
+    storageService.saveUserProfile(guestProfile);
     setIsProfileOpen(false);
     userService.signOutUser().catch(() => {});
   };
@@ -566,7 +578,7 @@ useEffect(() => {
             {/* 5. Pinoy Movies Row */}
             {selectedGenreCategory === 'All' && pinoyMovies.length > 0 && (
               <MovieRow
-                title="???? PINOY MOVIES"
+                title="🇵🇭 PINOY MOVIES"
                 subtitle="Mga pelikulang Pilipino para sa mga Pinoy movie lovers"
                 movies={pinoyMovies}
                 onSelectMovie={(m) => setSelectedMovieForDetails(m)}
@@ -577,21 +589,6 @@ useEffect(() => {
                 onToggleWatchlist={handleToggleWatchlist}
               />
             )}
-              {/* 6. Encode By Reborn Row */}
-              {selectedGenreCategory === 'All' && encodeByReborn.length > 0 && (
-                <MovieRow
-                  title="?? ENCODE BY REBORN"
-                  subtitle="Mga video at pelikulang Encode By Reborn"
-                  movies={encodeByReborn}
-                  onSelectMovie={(m) => setSelectedMovieForDetails(m)}
-                  onPlayMovie={handlePlayMovie}
-                  onStartDownload={handleStartDownload}
-                  downloadedMovieIds={downloadedMovieIds}
-                  watchlist={userProfile.watchlist}
-                  onToggleWatchlist={handleToggleWatchlist}
-                />
-              )}
-
         {/* TAB: WATCHLIST */}
         {activeTab === 'watchlist' && (
           <WatchlistView
@@ -728,14 +725,6 @@ useEffect(() => {
     </div>
   );
 }
-
-
-
-
-
-
-
-
 
 
 

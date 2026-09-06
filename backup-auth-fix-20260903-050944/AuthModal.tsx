@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Mail, Lock, User, LogIn, UserPlus, Sparkles, CheckCircle2, ShieldCheck, Chrome } from 'lucide-react';
+import { X, Mail, Lock, User, LogIn, UserPlus, Sparkles, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { userService, OWNER_EMAIL } from '../services/userService';
 import { UserProfile } from '../types';
 
@@ -94,38 +94,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    setErrorMsg('');
-    setSuccessMsg('');
-
-    try {
-      const profile = await userService.loginWithGoogle();
-
-      setSuccessMsg('Matagumpay na naka-sign in gamit ang Google!');
-
-      setTimeout(() => {
-        triggerSuccess(profile);
-        onClose();
-      }, 150);
-    } catch (err: any) {
-      console.error('Google Sign-In error:', err);
-
-      if (err?.code === 'auth/popup-closed-by-user') {
-        setErrorMsg('Isinara ang Google Sign-In window.');
-      } else if (err?.code === 'auth/popup-blocked') {
-        setErrorMsg('Na-block ng browser ang Google Sign-In popup. Payagan ang popup para sa Pinoysinehub.');
-      } else if (err?.code === 'auth/cancelled-popup-request') {
-        setErrorMsg('Kinansela ang Google Sign-In.');
-      } else {
-        setErrorMsg(
-          err?.message || 'Hindi makapag-sign in gamit ang Google. Pakisubukan muli.'
-        );
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
   const handleGuestLogin = async () => {
     setLoading(true);
     setErrorMsg('');
@@ -144,7 +112,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className="w-full max-w-md max-h-[calc(100vh-2rem)] overflow-y-auto bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl p-6 relative"
+        className="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl p-6 relative overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Decorative ambient glow */}
@@ -341,29 +309,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
           )}
 
-          {/* Google Sign-In */}
-        <button
-          type="button"
-          onClick={handleGoogleLogin}
-          disabled={loading}
-          className="w-full py-3 px-4 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 font-bold text-xs shadow-lg transition-all active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        >
-          {loading ? (
-            <div className="w-4 h-4 border-2 border-neutral-300 border-t-neutral-900 rounded-full animate-spin" />
-          ) : (
-            <>
-              <Chrome className="w-4 h-4" />
-              <span>Magpatuloy gamit ang Google</span>
-            </>
-          )}
-        </button>
-
-        <div className="flex items-center gap-3 my-3">
-          <div className="h-px bg-neutral-800 flex-1" />
-          <span className="text-[10px] text-neutral-500 font-medium">O</span>
-          <div className="h-px bg-neutral-800 flex-1" />
-        </div>
-        {/* Submit Button */}
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
@@ -404,7 +350,3 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     </div>
   );
 };
-
-
-
-

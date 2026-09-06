@@ -10,8 +10,6 @@ interface MovieRowProps {
   isTop10?: boolean;
   onSelectMovie: (movie: Movie) => void;
   onPlayMovie: (movie: Movie) => void;
-  onStartDownload: (movie: Movie) => void;
-  downloadedMovieIds: string[];
   watchlist: string[];
   onToggleWatchlist: (movieId: string) => void;
 }
@@ -23,8 +21,6 @@ export const MovieRow: React.FC<MovieRowProps> = ({
   isTop10,
   onSelectMovie,
   onPlayMovie,
-  onStartDownload,
-  downloadedMovieIds,
   watchlist,
   onToggleWatchlist,
 }) => {
@@ -82,8 +78,6 @@ export const MovieRow: React.FC<MovieRowProps> = ({
               rank={isTop10 ? index + 1 : undefined}
               onSelect={onSelectMovie}
               onPlay={onPlayMovie}
-              onStartDownload={onStartDownload}
-              isDownloaded={downloadedMovieIds.includes(movie.id)}
               isInWatchlist={watchlist.includes(movie.id)}
               onToggleWatchlist={onToggleWatchlist}
             />
@@ -102,3 +96,4 @@ export const MovieRow: React.FC<MovieRowProps> = ({
     </div>
   );
 };
+

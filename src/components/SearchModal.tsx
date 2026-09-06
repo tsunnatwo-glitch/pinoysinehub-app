@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, X, Play, Download, Sparkles, Film, ArrowRight } from 'lucide-react';
+import { Search, X, Play, Sparkles, Film, ArrowRight } from 'lucide-react';
 import { Movie } from '../types';
 import { MOVIES_CATALOG, GENRE_CATEGORIES } from '../data/catalog';
 
@@ -7,16 +7,12 @@ interface SearchModalProps {
   onClose: () => void;
   onSelectMovie: (movie: Movie) => void;
   onPlayMovie: (movie: Movie) => void;
-  onStartDownload: (movie: Movie) => void;
-  downloadedMovieIds: string[];
 }
 
 export const SearchModal: React.FC<SearchModalProps> = ({
   onClose,
   onSelectMovie,
   onPlayMovie,
-  onStartDownload,
-  downloadedMovieIds,
 }) => {
   const [query, setQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState('All');
@@ -145,7 +141,6 @@ export const SearchModal: React.FC<SearchModalProps> = ({
         {/* Results Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 pb-20">
           {filteredMovies.map((movie) => {
-            const isDownloaded = downloadedMovieIds.includes(movie.id);
 
             return (
               <div
@@ -188,20 +183,6 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                       <Play className="w-3 h-3 fill-black" />
                       <span>Play</span>
                     </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onStartDownload(movie);
-                      }}
-                      className={`p-1.5 rounded-lg border text-xs ${
-                        isDownloaded
-                          ? 'bg-emerald-950/60 text-emerald-400 border-emerald-500'
-                          : 'bg-neutral-800 text-neutral-300 border-neutral-700'
-                      }`}
-                      title="Download offline"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                    </button>
                   </div>
                 </div>
               </div>
@@ -212,3 +193,4 @@ export const SearchModal: React.FC<SearchModalProps> = ({
     </div>
   );
 };
+

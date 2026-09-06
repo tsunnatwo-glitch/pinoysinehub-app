@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { Play, Info, Download, Check, Volume2, VolumeX, Sparkles } from 'lucide-react';
+import { Play, Info, Check, Volume2, VolumeX, Sparkles } from 'lucide-react';
 import { Movie } from '../types';
 
 interface HeroBannerProps {
   movie: Movie;
   onPlay: (movie: Movie) => void;
   onOpenDetails: (movie: Movie) => void;
-  onStartDownload: (movie: Movie) => void;
-  isDownloaded: boolean;
   isInWatchlist: boolean;
   onToggleWatchlist: (movieId: string) => void;
 }
@@ -16,8 +14,6 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
   movie,
   onPlay,
   onOpenDetails,
-  onStartDownload,
-  isDownloaded,
   isInWatchlist,
   onToggleWatchlist,
 }) => {
@@ -91,23 +87,10 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
               <Info className="w-4 h-4" />
               <span>More Info</span>
             </button>
-
-            {/* Quick Download Button */}
-            <button
-              id="hero-download-btn"
-              onClick={() => onStartDownload(movie)}
-              className={`p-2.5 rounded-lg border transition-all active:scale-95 ${
-                isDownloaded
-                  ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
-                  : 'bg-neutral-850/80 text-neutral-300 border-neutral-700 hover:text-white hover:bg-neutral-700'
-              }`}
-              title={isDownloaded ? 'Downloaded in offline storage' : 'Download for offline viewing'}
-            >
-              {isDownloaded ? <Check className="w-5 h-5" /> : <Download className="w-5 h-5" />}
-            </button>
           </div>
         </div>
       </div>
     </div>
   );
 };
+

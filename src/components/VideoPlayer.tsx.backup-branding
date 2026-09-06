@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Play,
   Pause,
@@ -44,62 +44,6 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [selectedAudio, setSelectedAudio] = useState(movie.audioTracks[0] || 'Filipino (Original)');
   const [showSubtitleMenu, setShowSubtitleMenu] = useState(false);
   const [isScreenLocked, setIsScreenLocked] = useState(false);
-
-  // Keep Back navigation inside PinoySineHub while the player is open.
-  const playerHistoryActiveRef = useRef(false);
-  const closingPlayerRef = useRef(false);
-
-  useEffect(() => {
-    if (playerHistoryActiveRef.current) return;
-
-    playerHistoryActiveRef.current = true;
-    closingPlayerRef.current = false;
-
-    const currentState = window.history.state || {};
-
-    window.history.pushState(
-      {
-        ...currentState,
-        __pinoySineHubVideoPlayer: true,
-      },
-      '',
-      window.location.href
-    );
-
-    const handlePlayerBack = () => {
-      if (closingPlayerRef.current) return;
-
-      // Restore the player history entry immediately.
-      // This prevents an iframe/ad navigation from sending
-      // the main PinoySineHub page back to its homepage.
-      window.history.pushState(
-        {
-          ...(window.history.state || {}),
-          __pinoySineHubVideoPlayer: true,
-        },
-        '',
-        window.location.href
-      );
-
-      playerHistoryActiveRef.current = false;
-      onClose();
-    };
-
-    window.addEventListener('popstate', handlePlayerBack);
-
-    return () => {
-      window.removeEventListener('popstate', handlePlayerBack);
-
-      if (
-        playerHistoryActiveRef.current &&
-        window.history.state?.__pinoySineHubVideoPlayer
-      ) {
-        closingPlayerRef.current = true;
-        playerHistoryActiveRef.current = false;
-        window.history.back();
-      }
-    };
-  }, [onClose]);
 
   // Hide controls after inactivity
   useEffect(() => {
@@ -221,7 +165,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             aria-label="Back to browse"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Bumalik sa PinoySineHub</span>
+            <span>Bumalik sa Pinoysinehub</span>
           </button>
         </div>
       ) : (
@@ -264,7 +208,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               <div>
                 <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
                   <span>{movie.title}</span>
-                  {episode && <span className="text-neutral-400 font-normal">â€¢ {episode.title}</span>}
+                  {episode && <span className="text-neutral-400 font-normal">• {episode.title}</span>}
                 </h3>
                 {isOfflinePlayback && (
                   <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
@@ -438,6 +382,3 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     </div>
   );
 };
-
-
-
