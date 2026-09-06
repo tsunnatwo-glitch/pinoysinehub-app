@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Play, ThumbsUp, Heart, Plus, Sparkles } from 'lucide-react';
+import { X, Play, Download, Check, ThumbsUp, Heart, Plus, Sparkles } from 'lucide-react';
 import { Movie, Episode, QualityTier } from '../types';
 
 interface MovieDetailModalProps {
@@ -18,11 +18,24 @@ export const MovieDetailModal: React.FC<MovieDetailModalProps> = ({
   movie,
   onClose,
   onPlay,
+  onStartDownload,
+  downloadedItemIds,
   isInWatchlist,
   onToggleWatchlist,
   onRateMovie,
   userRating,
 }) => {
+  const [selectedQuality, setSelectedQuality] = useState<QualityTier>('HD (720p)');
+  const [showQualityPicker, setShowQualityPicker] = useState(false);
+
+  if (!movie) return null;
+
+  const isDownloaded = downloadedItemIds.includes(movie.id);
+
+  const handleDownloadClick = (episode?: Episode) => {
+    onStartDownload(movie, episode, selectedQuality);
+    setShowQualityPicker(false);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
@@ -158,6 +171,7 @@ export const MovieDetailModal: React.FC<MovieDetailModalProps> = ({
                       >
                         <Play className="w-3.5 h-3.5 fill-black" />
                       </button>
+
                     </div>
                   </div>
                 ))}
@@ -169,8 +183,6 @@ export const MovieDetailModal: React.FC<MovieDetailModalProps> = ({
     </div>
   );
 };
-
-
 
 
 

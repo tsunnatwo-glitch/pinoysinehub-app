@@ -53,25 +53,6 @@ export const BottomNav: React.FC<BottomNavProps> = ({
           <span>Listahan</span>
         </button>
 
-        {/* Downloads */}
-        <button
-          id="tab-downloads-btn"
-          onClick={() => setActiveTab('downloads')}
-          className={`relative flex flex-col items-center justify-center py-1 px-3 text-[10px] font-medium transition-colors ${
-            activeTab === 'downloads' ? 'text-[#E50914] font-bold' : 'text-neutral-400 hover:text-neutral-200'
-          }`}
-        >
-          <div className="relative">
-            <Download className={`w-5 h-5 mb-0.5 ${isDownloadingAny ? 'animate-bounce text-[#E50914]' : ''}`} />
-            {completedDownloadsCount > 0 && (
-              <span className="absolute -top-1 -right-2 bg-[#E50914] text-white text-[9px] font-bold px-1 rounded-full min-w-[14px] text-center">
-                {completedDownloadsCount}
-              </span>
-            )}
-          </div>
-          <span>Downloads</span>
-        </button>
-
         {/* Settings */}
         <button
           id="tab-profile-btn"
@@ -87,4 +68,5 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     </nav>
   );
 };
+
 

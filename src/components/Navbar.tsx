@@ -61,12 +61,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               Home / Lahat
             </button>
-            <button
-              onClick={() => setActiveTab('downloads')}
-              className={`hover:text-white transition-colors ${activeTab === 'downloads' ? 'text-white font-bold' : ''}`}
-            >
-              Downloads & Offline
-            </button>
+
           </div>
         </div>
 
@@ -141,5 +136,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     </header>
   );
 };
+
 
 
