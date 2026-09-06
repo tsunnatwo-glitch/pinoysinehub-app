@@ -6,7 +6,8 @@ export type AppCategory =
   | 'Tagalog Dubbed Tv Series'
   | 'Tagalog Dubbed Anime Movies'
   | 'Tagalog Dubbed Anime Tv Series'
-  | 'Pinoy Movies';
+  | 'Pinoy Movies'
+  | 'Encode By Reborn';
 
 export interface Episode {
   id: string;
@@ -136,4 +137,5 @@ export interface AdMetrics {
   revenueEstUSD: number;
   videoAdsCompleted: number;
 }
+
 

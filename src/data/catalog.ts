@@ -17,6 +17,7 @@ export const APP_CATEGORIES: AppCategory[] = [
   'Tagalog Dubbed Anime Movies',
   'Tagalog Dubbed Anime Tv Series',
   'Pinoy Movies',
+  'Encode By Reborn',
 ];
 
 export const GENRE_CATEGORIES = [
@@ -25,5 +26,6 @@ export const GENRE_CATEGORIES = [
 ];
 
 export const MOVIES_CATALOG: Movie[] = [];
+
 
 
