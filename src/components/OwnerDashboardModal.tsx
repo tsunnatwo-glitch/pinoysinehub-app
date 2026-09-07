@@ -143,7 +143,7 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className="w-full max-w-4xl bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="w-full max-w-6xl bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[94vh]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-800 bg-neutral-950">
@@ -271,6 +271,7 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({
     </div>
   );
 };
+
 
 
 
