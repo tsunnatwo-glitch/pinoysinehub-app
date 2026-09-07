@@ -406,7 +406,7 @@ useEffect(() => {
         {activeTab === 'home' && (
           <div>
             {/* Quick Category Selector Pills */}
-            <div className="max-w-6xl mx-auto px-4 mb-4 overflow-x-auto no-scrollbar flex items-center gap-2">
+            <div className="max-w-6xl mx-auto px-4 mb-4 flex flex-wrap items-center gap-2">
               {GENRE_CATEGORIES.map((cat) => (
                 <button
                   key={cat}
@@ -423,7 +423,7 @@ useEffect(() => {
             </div>
 
             {selectedGenreCategory === 'Encode By Reborn' && (
-              <div className="max-w-6xl mx-auto px-4 mb-5 overflow-x-auto no-scrollbar flex items-center gap-2">
+              <div className="max-w-6xl mx-auto px-4 mb-5 flex flex-wrap items-center gap-2">
                 {['Encode By Reborn Tagalog Dubbed Movies', 'Encode By Reborn Tagalog Dubbed Anime Movies', 'Encode By Reborn Tagalog Dubbed Anime Series', 'Encode By Reborn Tagalog Dubbed Anime Movies No Watermark', 'Encode By Reborn Tagalog Dubbed Anime Series No Watermark'].map((subcat) => (
                   <button
                     key={subcat}
@@ -747,6 +747,8 @@ useEffect(() => {
     </div>
   );
 }
+
+
 
 
 
