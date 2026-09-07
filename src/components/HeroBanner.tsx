@@ -75,7 +75,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
               className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-white text-black font-extrabold text-sm hover:bg-neutral-200 transition-all shadow-lg active:scale-95"
             >
               <Play className="w-5 h-5 fill-black" />
-              <span>I-play Ngayon</span>
+              <span>Play Now</span>
             </button>
 
             {/* More Info Button */}
@@ -93,4 +93,5 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
     </div>
   );
 };
+
 

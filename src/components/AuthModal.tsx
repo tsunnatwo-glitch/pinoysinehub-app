@@ -165,11 +165,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <ShieldCheck className="w-6 h-6 text-white" />
           </div>
           <h2 className="text-xl font-black text-white tracking-tight">
-            {mode === 'signin' ? 'Mag-Sign In sa Pinoysinehub' : 'Gumawa ng Libreng Account'}
+            {mode === 'signin' ? 'Sign In to Pinoysinehub' : 'Create a Free Account'}
           </h2>
           <p className="text-xs text-neutral-400 mt-1">
             {mode === 'signin'
-              ? 'I-access ang iyong Watchlist, Downloads, at Tagalog Dubbed streaming.'
+              ? 'Access your Watchlist, Downloads, and Tagalog Dubbed streaming.'
               : 'Libreng manood ng Tagalog Dubbed Movies, Series, at Anime.'}
           </p>
         </div>
@@ -404,6 +404,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     </div>
   );
 };
+
 
 
 
