@@ -330,7 +330,7 @@ useEffect(() => {
   };
 
   const handleClearAllDownloads = () => {
-    if (confirm('Sigurado ka bang nais mong burahin ang lahat ng na-download na palabas para makapag-free up ng space?')) {
+    if (confirm('Are you sure you want to delete all downloaded content to free up storage space?')) {
       setDownloads([]);
     }
   };
@@ -441,7 +441,7 @@ useEffect(() => {
               <div className="max-w-6xl mx-auto px-4 my-6">
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="text-base sm:text-lg font-bold text-white">
-                    Mga Palabas sa kategoryang: {selectedGenreCategory}
+                    Shows in category: {selectedGenreCategory}
                   </h2>
                   <button
                     onClick={() => setSelectedGenreCategory('All')}
@@ -476,8 +476,8 @@ useEffect(() => {
             {/* Custom User-Added Movies Row (if any) */}
             {customMovies.length > 0 && selectedGenreCategory === 'All' && (
               <MovieRow
-                title="⭐ Aking Mga Idinagdag na Video & Pelikula"
-                subtitle="Mga custom video link at poster na iyong in-upload"
+                title="My Added Videos & Movies"
+                subtitle="Custom video links and posters you uploaded"
                 movies={customMovies}
                 onSelectMovie={(m) => setSelectedMovieForDetails(m)}
                 onPlayMovie={handlePlayMovie}
@@ -491,8 +491,8 @@ useEffect(() => {
             {/* Continue Watching Row */}
             {continueWatchingMovies.length > 0 && selectedGenreCategory === 'All' && (
               <MovieRow
-                title="Patuloy na Panoorin (Continue Watching)"
-                subtitle="Ituloy kung saan ka huminto"
+                title="Continue Watching"
+                subtitle="Continue from where you left off"
                 movies={continueWatchingMovies}
                 onSelectMovie={(m) => setSelectedMovieForDetails(m)}
                 onPlayMovie={handlePlayMovie}
@@ -506,8 +506,8 @@ useEffect(() => {
             {/* Top 10 Today in Philippines Row */}
             {selectedGenreCategory === 'All' && (
               <MovieRow
-                title="Top 10 Pelikula sa Pilipinas Ngayon 🇵🇭"
-                subtitle="Ang pinaka-patok na pinapanood sa bansa"
+                title="Top 10 Movies in the Philippines Today"
+                subtitle="Most watched content in the Philippines"
                 movies={top10Movies}
                 isTop10={true}
                 onSelectMovie={(m) => setSelectedMovieForDetails(m)}
@@ -538,7 +538,7 @@ useEffect(() => {
             {selectedGenreCategory === 'All' && tagalogDubbedSeries.length > 0 && (
               <MovieRow
                 title="📺 TAGALOG DUBBED TV SERIES"
-                subtitle="Kumpletong episodes ng mga teleserye at foreign drama sa Tagalog"
+                subtitle="Complete episodes of TV series and foreign dramas in Tagalog"
                 movies={tagalogDubbedSeries}
                 onSelectMovie={(m) => setSelectedMovieForDetails(m)}
                 onPlayMovie={handlePlayMovie}
@@ -585,8 +585,8 @@ useEffect(() => {
             {/* 5. Pinoy Movies Row */}
             {selectedGenreCategory === 'All' && pinoyMovies.length > 0 && (
               <MovieRow
-                title="???? PINOY MOVIES"
-                subtitle="Mga pelikulang Pilipino para sa mga Pinoy movie lovers"
+                title="PINOY MOVIES"
+                subtitle="Filipino movies for Pinoy movie lovers"
                 movies={pinoyMovies}
                 onSelectMovie={(m) => setSelectedMovieForDetails(m)}
                 onPlayMovie={handlePlayMovie}
@@ -599,8 +599,8 @@ useEffect(() => {
               {/* 6. Encode By Reborn Row */}
               {selectedGenreCategory === 'All' && encodeByReborn.length > 0 && (
                 <MovieRow
-                  title="?? ENCODE BY REBORN"
-                  subtitle="Mga video at pelikulang Encode By Reborn"
+                  title="ENCODE BY REBORN"
+                  subtitle="Encode By Reborn Movies & Videos"
                   movies={encodeByReborn}
                   onSelectMovie={(m) => setSelectedMovieForDetails(m)}
                   onPlayMovie={handlePlayMovie}
@@ -747,6 +747,17 @@ useEffect(() => {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
