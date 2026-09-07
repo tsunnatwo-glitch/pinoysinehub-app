@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   Users,
@@ -124,7 +124,7 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({
   );
 
   const formatDate = (timestamp: number) => {
-    if (!timestamp) return 'Walang tala';
+    if (!timestamp) return 'No record';
     const d = new Date(timestamp);
     return d.toLocaleDateString('fil-PH', {
       month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit',
@@ -153,10 +153,10 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black text-white tracking-tight">ðŸ‘‘ May-ari / Analytics Dashboard</h2>
+                <h2 className="text-base sm:text-lg font-black text-white tracking-tight">Owner / Analytics Dashboard</h2>
                 <span className="text-[10px] bg-amber-500 text-black font-black px-2 py-0.5 rounded-full">Owner Portal</span>
               </div>
-              <p className="text-[11px] text-neutral-400">Pribadong datos ng mga nag-sign up at gumagamit sa PinoySineHub</p>
+              <p className="text-[11px] text-neutral-400">Private data of PinoySineHub users and activity</p>
             </div>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-full text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors">
@@ -168,11 +168,11 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({
           <div className="p-8 text-center max-w-md mx-auto space-y-4">
             <div className="w-16 h-16 rounded-full bg-neutral-800 flex items-center justify-center mx-auto text-amber-400"><Lock className="w-8 h-8" /></div>
             <h3 className="text-lg font-bold text-white">Owner Security Check</h3>
-            <p className="text-xs text-neutral-400">Ikaw lamang (ang may-ari ng app) ang may karapatang makakita sa analytics at listahan ng mga users. Ilagay ang iyong Owner PIN code o mag-sign in gamit ang <span className="text-amber-400 font-mono">{OWNER_EMAIL}</span>.</p>
+            <p className="text-xs text-neutral-400">Only the app owner is authorized to view analytics and the user list. Enter your Owner PIN code or sign in with <span className="text-amber-400 font-mono">{OWNER_EMAIL}</span>.</p>
             <form onSubmit={handleUnlockWithPin} className="space-y-3">
               <input type="password" placeholder="Ilagay ang iyong 6-digit Owner PIN" value={passcode} onChange={(e) => setPasscode(e.target.value)} className="w-full bg-neutral-950 border border-neutral-700 rounded-xl px-4 py-2.5 text-xs text-center text-white focus:outline-none focus:border-amber-400 font-mono tracking-widest text-base" autoFocus />
               {passcodeError && <p className="text-xs text-red-400 font-medium">{passcodeError}</p>}
-              <button type="submit" className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs shadow-md transition-colors">I-unlock ang Owner Analytics</button>
+              <button type="submit" className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs shadow-md transition-colors">Unlock Owner Analytics</button>
             </form>
           </div>
         ) : (
@@ -182,17 +182,17 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2 text-white font-bold text-sm"><Library className="w-4 h-4 text-amber-400" /> Content Manager</div>
-                  <p className="text-[10px] text-neutral-500 mt-1">Magdagdag gamit ang Embed Link/Code at burahin ang sample o custom content.</p>
+                  <p className="text-[10px] text-neutral-500 mt-1">Add content using an Embed Link/Code and remove sample or custom content.</p>
                 </div>
                 <button onClick={() => { setEditingMovie(null); setIsAddMovieOpen(true); }} className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-[#E50914] hover:bg-red-600 text-white font-bold text-xs transition-colors shrink-0">
-                  <Plus className="w-4 h-4" /> Magdagdag ng Pelikula / Series
+                  <Plus className="w-4 h-4" /> Add Movie / Series
                 </button>
               </div>
 
               <div className="mt-3 flex items-center gap-2">
                 <div className="relative flex-1">
                   <Search className="w-3.5 h-3.5 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input value={contentSearch} onChange={(e) => setContentSearch(e.target.value)} placeholder="Hanapin ang movie o series..." className="w-full bg-neutral-900 border border-neutral-700 rounded-lg py-2 pl-8 pr-3 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-amber-400" />
+                  <input value={contentSearch} onChange={(e) => setContentSearch(e.target.value)} placeholder="Search movie or series..." className="w-full bg-neutral-900 border border-neutral-700 rounded-lg py-2 pl-8 pr-3 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-amber-400" />
                 </div>
                 <span className="text-[10px] text-neutral-500 shrink-0">{filteredContent.length} content</span>
               </div>
@@ -201,7 +201,7 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({
                 {filteredContent.length === 0 ? (
                   <div className="py-7 text-center border border-dashed border-neutral-800 rounded-lg text-xs text-neutral-600">
                     <Film className="w-6 h-6 mx-auto mb-2 opacity-50" />
-                    Wala pang content. Magdagdag ng unang movie o series.
+                    No content yet. Add your first movie or series.
                   </div>
                 ) : filteredContent.map((movie) => (
                   <div key={movie.id} className="flex items-center gap-3 bg-neutral-900 border border-neutral-800 rounded-lg p-2">
@@ -210,13 +210,13 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({
                       <div className="text-xs font-bold text-white truncate">{movie.title}</div>
                       <div className="text-[10px] text-neutral-500 flex items-center gap-1 mt-0.5">
                         {movie.type === 'series' ? <Tv className="w-3 h-3" /> : <Film className="w-3 h-3" />}
-                        <span className="truncate">{movie.category || 'Walang category'}</span>
+                        <span className="truncate">{movie.category || 'No category'}</span>
                       </div>
                     </div>
                     {movie.type === 'series' && (
                       <button
                         onClick={() => { setEditingMovie(movie); setIsAddMovieOpen(true); }}
-                        title="Magdagdag ng Episode"
+                        title="Add Episode"
                         className="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg bg-emerald-600/15 text-emerald-400 border border-emerald-600/30 hover:bg-emerald-600/25 transition-colors shrink-0 text-[10px] font-bold"
                       >
                         <Plus className="w-3 h-3" />
@@ -226,7 +226,7 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({
 
                     <button
                       onClick={() => { setEditingMovie(movie); setIsAddMovieOpen(true); }}
-                      title="I-edit ang Series"
+                      title="Edit Series"
                       className="p-2 rounded-lg text-neutral-500 hover:text-amber-400 hover:bg-amber-950/30 transition-colors shrink-0"
                     >
                       <Pencil className="w-4 h-4" />
@@ -242,8 +242,8 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800 relative overflow-hidden"><div className="absolute top-0 right-0 w-16 h-16 bg-red-600/10 rounded-bl-full" /><div className="flex items-center gap-2 text-neutral-400 text-xs font-semibold mb-1"><Users className="w-4 h-4 text-red-500" /><span>Nag-Sign Up (Users)</span></div><div className="text-2xl sm:text-3xl font-black text-white">{totalRegistered}</div><div className="text-[10px] text-emerald-400 mt-1 font-medium">Naka-save sa Firebase Cloud</div></div>
               <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800 relative overflow-hidden"><div className="absolute top-0 right-0 w-16 h-16 bg-emerald-600/10 rounded-bl-full" /><div className="flex items-center gap-2 text-neutral-400 text-xs font-semibold mb-1"><UserCheck className="w-4 h-4 text-emerald-500" /><span>Aktibo (24 Hours)</span></div><div className="text-2xl sm:text-3xl font-black text-white">{activeLast24h}</div><div className="text-[10px] text-neutral-400 mt-1">Online / Nag-stream ngayon</div></div>
-              <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800 relative overflow-hidden"><div className="absolute top-0 right-0 w-16 h-16 bg-amber-600/10 rounded-bl-full" /><div className="flex items-center gap-2 text-neutral-400 text-xs font-semibold mb-1"><Eye className="w-4 h-4 text-amber-500" /><span>Guest / Bisita</span></div><div className="text-2xl sm:text-3xl font-black text-white">{totalGuests}</div><div className="text-[10px] text-neutral-400 mt-1">Nanonood nang walang account</div></div>
-              <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800 relative overflow-hidden"><div className="absolute top-0 right-0 w-16 h-16 bg-purple-600/10 rounded-bl-full" /><div className="flex items-center gap-2 text-neutral-400 text-xs font-semibold mb-1"><Bookmark className="w-4 h-4 text-purple-400" /><span>Total Watchlist Saves</span></div><div className="text-2xl sm:text-3xl font-black text-white">{totalWatchlists}</div><div className="text-[10px] text-neutral-400 mt-1">Mga paboritong Tagalog Dubbed</div></div>
+              <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800 relative overflow-hidden"><div className="absolute top-0 right-0 w-16 h-16 bg-amber-600/10 rounded-bl-full" /><div className="flex items-center gap-2 text-neutral-400 text-xs font-semibold mb-1"><Eye className="w-4 h-4 text-amber-500" /><span>Guest / Guest</span></div><div className="text-2xl sm:text-3xl font-black text-white">{totalGuests}</div><div className="text-[10px] text-neutral-400 mt-1">Watching without an account</div></div>
+              <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800 relative overflow-hidden"><div className="absolute top-0 right-0 w-16 h-16 bg-purple-600/10 rounded-bl-full" /><div className="flex items-center gap-2 text-neutral-400 text-xs font-semibold mb-1"><Bookmark className="w-4 h-4 text-purple-400" /><span>Total Watchlist Saves</span></div><div className="text-2xl sm:text-3xl font-black text-white">{totalWatchlists}</div><div className="text-[10px] text-neutral-400 mt-1">Favorite Tagalog Dubbed Content</div></div>
             </div>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-neutral-950 p-3 rounded-xl border border-neutral-800">
@@ -252,13 +252,13 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({
             </div>
 
             <div className="bg-neutral-950 rounded-xl border border-neutral-800 overflow-hidden">
-              <div className="px-4 py-3 border-b border-neutral-800 flex items-center justify-between text-xs text-neutral-400"><span className="font-bold text-white uppercase tracking-wider text-[11px]">Talaan ng mga Gumagamit ({filteredUsers.length})</span><span className="text-[10px] text-emerald-400 flex items-center gap-1 font-medium"><span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Realtime Cloud Sync</span></div>
-              {loading && users.length === 0 ? <div className="py-12 text-center text-xs text-neutral-500"><div className="w-6 h-6 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin mx-auto mb-2" />Kinakarga ang mga datos mula sa Firebase...</div> : filteredUsers.length === 0 ? <div className="py-12 text-center text-xs text-neutral-500">Walang nakitang user sa paghahanap.</div> : <div className="overflow-x-auto"><table className="w-full text-left text-xs"><thead className="bg-neutral-900/60 text-neutral-400 border-b border-neutral-800 text-[10px] uppercase font-bold tracking-wider"><tr><th className="px-4 py-3">Pangalan / User</th><th className="px-4 py-3">Email Address</th><th className="px-4 py-3">Petsa ng Pag-Sign Up</th><th className="px-4 py-3">Huling Aktibo</th><th className="px-4 py-3 text-center">Watchlist</th><th className="px-4 py-3 text-right">Status</th></tr></thead><tbody className="divide-y divide-neutral-850">{filteredUsers.map((user) => { const isOwnerAccount = user.email?.toLowerCase().trim() === OWNER_EMAIL.toLowerCase() || user.role === 'owner'; return <tr key={user.id} className={`hover:bg-neutral-900/50 transition-colors ${isOwnerAccount ? 'bg-amber-500/5' : ''}`}><td className="px-4 py-3"><div className="flex items-center gap-2.5"><img src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'} alt={user.name} className="w-8 h-8 rounded-lg object-cover border border-neutral-700" referrerPolicy="no-referrer" /><div><div className="font-bold text-white flex items-center gap-1.5"><span>{user.name}</span>{isOwnerAccount && <span className="text-[9px] bg-amber-500 text-black font-black px-1.5 py-0.2 rounded">MAY-ARI</span>}</div><span className="text-[10px] text-neutral-500 font-mono">ID: {user.id.slice(0, 8)}...</span></div></div></td><td className="px-4 py-3 font-mono text-neutral-300">{user.email && user.email !== 'No Email' ? <span className="flex items-center gap-1"><Mail className="w-3 h-3 text-neutral-500" /><span>{user.email}</span></span> : <span className="text-neutral-500 italic">Guest (Walang email)</span>}</td><td className="px-4 py-3 text-neutral-400"><span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-neutral-500" /><span>{formatDate(user.createdAt)}</span></span></td><td className="px-4 py-3 text-neutral-300"><span className="flex items-center gap-1"><Clock className="w-3 h-3 text-neutral-500" /><span>{formatRelativeTime(user.lastActiveAt)}</span></span></td><td className="px-4 py-3 text-center font-bold text-neutral-200"><span className="px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-300">{user.watchlistCount || 0}</span></td><td className="px-4 py-3 text-right">{isOwnerAccount ? <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40">Admin / Owner</span> : !user.isAnonymous && user.email ? <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Rehistrado</span> : <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-400">Bisita</span>}</td></tr>; })}</tbody></table></div>}
+              <div className="px-4 py-3 border-b border-neutral-800 flex items-center justify-between text-xs text-neutral-400"><span className="font-bold text-white uppercase tracking-wider text-[11px]">User List ({filteredUsers.length})</span><span className="text-[10px] text-emerald-400 flex items-center gap-1 font-medium"><span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Realtime Cloud Sync</span></div>
+              {loading && users.length === 0 ? <div className="py-12 text-center text-xs text-neutral-500"><div className="w-6 h-6 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin mx-auto mb-2" />Loading data from Firebase...</div> : filteredUsers.length === 0 ? <div className="py-12 text-center text-xs text-neutral-500">No users found.</div> : <div className="overflow-x-auto"><table className="w-full text-left text-xs"><thead className="bg-neutral-900/60 text-neutral-400 border-b border-neutral-800 text-[10px] uppercase font-bold tracking-wider"><tr><th className="px-4 py-3">Pangalan / User</th><th className="px-4 py-3">Email Address</th><th className="px-4 py-3">Sign-Up Date</th><th className="px-4 py-3">Last Active</th><th className="px-4 py-3 text-center">Watchlist</th><th className="px-4 py-3 text-right">Status</th></tr></thead><tbody className="divide-y divide-neutral-850">{filteredUsers.map((user) => { const isOwnerAccount = user.email?.toLowerCase().trim() === OWNER_EMAIL.toLowerCase() || user.role === 'owner'; return <tr key={user.id} className={`hover:bg-neutral-900/50 transition-colors ${isOwnerAccount ? 'bg-amber-500/5' : ''}`}><td className="px-4 py-3"><div className="flex items-center gap-2.5"><img src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'} alt={user.name} className="w-8 h-8 rounded-lg object-cover border border-neutral-700" referrerPolicy="no-referrer" /><div><div className="font-bold text-white flex items-center gap-1.5"><span>{user.name}</span>{isOwnerAccount && <span className="text-[9px] bg-amber-500 text-black font-black px-1.5 py-0.2 rounded">OWNER</span>}</div><span className="text-[10px] text-neutral-500 font-mono">ID: {user.id.slice(0, 8)}...</span></div></div></td><td className="px-4 py-3 font-mono text-neutral-300">{user.email && user.email !== 'No Email' ? <span className="flex items-center gap-1"><Mail className="w-3 h-3 text-neutral-500" /><span>{user.email}</span></span> : <span className="text-neutral-500 italic">Guest (No email)</span>}</td><td className="px-4 py-3 text-neutral-400"><span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-neutral-500" /><span>{formatDate(user.createdAt)}</span></span></td><td className="px-4 py-3 text-neutral-300"><span className="flex items-center gap-1"><Clock className="w-3 h-3 text-neutral-500" /><span>{formatRelativeTime(user.lastActiveAt)}</span></span></td><td className="px-4 py-3 text-center font-bold text-neutral-200"><span className="px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-300">{user.watchlistCount || 0}</span></td><td className="px-4 py-3 text-right">{isOwnerAccount ? <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40">Admin / Owner</span> : !user.isAnonymous && user.email ? <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Registered</span> : <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-400">Guest</span>}</td></tr>; })}</tbody></table></div>}
             </div>
           </div>
         )}
 
-        <div className="px-5 py-3 border-t border-neutral-800 bg-neutral-950 flex items-center justify-between text-xs text-neutral-400"><span>PinoySineHub Analytics â€¢ Eksklusibo para sa <strong className="text-white">{OWNER_EMAIL}</strong></span><button onClick={onClose} className="px-4 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-xs transition-colors">Isara</button></div>
+        <div className="px-5 py-3 border-t border-neutral-800 bg-neutral-950 flex items-center justify-between text-xs text-neutral-400"><span>PinoySineHub Analytics • Exclusive access for <strong className="text-white">{OWNER_EMAIL}</strong></span><button onClick={onClose} className="px-4 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-xs transition-colors">Close</button></div>
       </div>
 
       <AddMovieForm
@@ -271,5 +271,12 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({
     </div>
   );
 };
+
+
+
+
+
+
+
 
 

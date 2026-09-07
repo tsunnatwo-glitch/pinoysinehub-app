@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Upload,
   Image as ImageIcon,
@@ -93,7 +93,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
   // Helper to compress and convert image file to Base64
   const processImageFile = (file: File, callback: (dataUrl: string) => void) => {
     if (!file.type.startsWith('image/')) {
-      setErrorMsg('Paki-upload ang wastong image file (JPEG, PNG, WEBP, etc).');
+      setErrorMsg('Please upload a valid image file (JPEG, PNG, WEBP, etc).');
       return;
     }
 
@@ -183,19 +183,19 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
     const finalEmbed = cleanEmbedUrl(videoUrl);
 
     if (!title.trim()) {
-      setErrorMsg('Kailangan may Pamagat (Title) ang pelikula/series.');
+      setErrorMsg('A Title is required for the movie/series.');
       return;
     }
 
     if (!finalPoster) {
-      setErrorMsg('Paki-upload ang Poster Image mula sa iyong device.');
+      setErrorMsg('Please upload the Poster Image from your device.');
       return;
     }
 
     // Para sa regular movie, kailangan ang video.
     // Para sa series, optional ang video dahil bawat episode ay hiwalay na sine-save.
     if (!isSeries && !finalEmbed) {
-      setErrorMsg('Kailangan maglagay ng Video Embed Link o iframe code.');
+      setErrorMsg('A Video Embed Link or iframe code is required.');
       return;
     }
 
@@ -337,10 +337,10 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
               {isEditing ? 'Edit Content' : 'Upload Poster & Embed Link'}
             </div>
             <h2 className="text-xl sm:text-2xl font-black tracking-tight">
-              {isEditing ? 'I-edit ang Pelikula o Series' : 'Maglagay ng Pelikula o Series'}
+              {isEditing ? 'Edit Movie or Series' : 'Add Movie or Series'}
             </h2>
             <p className="text-xs text-neutral-400 mt-1">
-              Pumili ng kategorya, mag-upload ng Poster Image file mula sa device, at i-paste ang Embed Code / Link.
+              Select a category, upload a Poster Image from your device, and paste the Embed Code / Link.
             </p>
           </div>
         </div>
@@ -356,7 +356,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
           {/* CATEGORY SELECTOR (The 5 requested categories) */}
           <div>
             <label className="block text-neutral-200 font-bold mb-2 flex items-center gap-1.5">
-              <span>Pumili ng Kategorya (Category) *</span>
+              <span>Select Category *</span>
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {APP_CATEGORIES.map((cat) => {
@@ -408,7 +408,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
             <div className="flex items-center justify-between mb-2">
               <label className="text-neutral-200 font-bold flex items-center gap-1.5">
                 <FileImage className="w-4 h-4 text-yellow-400" />
-                <span>Poster Image (Mag-Upload ng Larawan) *</span>
+                <span>Poster Image (Upload Image) *</span>
               </label>
               <div className="flex items-center gap-1 bg-neutral-950 p-0.5 rounded-lg border border-neutral-800 text-[10px]">
                 <button
@@ -471,7 +471,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
                           <span>Matagumpay na Na-upload ang Poster!</span>
                         </div>
                         <p className="text-[11px] text-neutral-400 truncate">
-                          Handa na ang poster para sa feed at playback screen.
+                          The poster is ready for the feed and playback screen.
                         </p>
                         <button
                           type="button"
@@ -491,7 +491,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
                         <Upload className="w-5 h-5" />
                       </div>
                       <p className="text-xs font-bold text-neutral-200">
-                        Pindutin dito para pumili ng larawan mula sa device
+                        Click here to select an image from your device
                       </p>
                       <p className="text-[11px] text-neutral-400">
                         o i-drag at i-drop ang image file (JPG, PNG, WEBP)
@@ -518,7 +518,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-neutral-300 font-bold flex items-center gap-1.5">
                 <ImageIcon className="w-3.5 h-3.5 text-sky-400" />
-                <span>Backdrop Banner (Opsyonal - Landscape)</span>
+                <span>Backdrop Banner (Optional - Landscape)</span>
               </label>
               <span className="text-[10px] text-neutral-400">Para sa wide player banner</span>
             </div>
@@ -554,13 +554,13 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
                     alt="Backdrop"
                     className="w-20 h-10 object-cover rounded border border-sky-500/40"
                   />
-                  <span className="text-xs text-sky-300 font-medium">Na-upload ang backdrop banner</span>
+                  <span className="text-xs text-sky-300 font-medium">Backdrop banner uploaded</span>
                   <span className="text-[10px] text-neutral-400 underline ml-auto">Palitan</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2 text-neutral-400">
                   <Upload className="w-3.5 h-3.5" />
-                  <span className="text-xs">Pindutin para mag-upload ng landscape banner (Opsyonal)</span>
+                  <span className="text-xs">Click to upload a landscape banner (Optional)</span>
                 </div>
               )}
             </div>
@@ -572,13 +572,13 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
               <label className="text-neutral-200 font-bold flex items-center gap-1.5">
                 <Code className="w-3.5 h-3.5 text-[#E50914]" />
                 <span>
-                  {isSeries ? 'Video Embed ng Episode' : 'Video Embed Link o Embed Code *'}
+                  {isSeries ? 'Episode Video Embed' : 'Video Embed Link or Embed Code *'}
                 </span>
               </label>
               <span className="text-[10px] text-neutral-400">
                 {isSeries
-                  ? 'Optional kapag gumagawa pa lang ng Series. Ilagay kapag mag-a-add/update ng episode.'
-                  : 'Suportado ang iframe o embed URL mula sa video host'}
+                  ? 'Optional when creating a Series. Add it when adding/updating an episode.'
+                  : 'Supports iframe or embed URLs from video hosts'}
               </span>
             </div>
             <textarea
@@ -599,7 +599,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
             </label>
             <textarea
               rows={2}
-              placeholder="Maikling kwento o buod ng palabas..."
+              placeholder="Short story or synopsis..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full bg-neutral-950 border border-neutral-700 rounded-xl px-3.5 py-2 text-white placeholder-neutral-500 focus:outline-none focus:border-[#E50914]"
@@ -621,14 +621,14 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
                   className="w-full bg-neutral-950 border border-neutral-700 rounded-xl px-3 py-2 text-white"
                 />
                 <p className="text-[10px] text-neutral-500 mt-1.5">
-                  Maglagay lang ng episode number kapag mag-a-add o mag-u-update ng episode.
-                  Walang fixed na bilang ng episodes.
+                  Enter an episode number only when adding or updating an episode.
+                  There is no fixed number of episodes.
                 </p>
               </div>
             ) : (
               <div>
                 <label className="block text-neutral-300 font-bold mb-1.5">
-                  Haba ng Pelikula (Duration)
+                  Movie Duration
                 </label>
                 <input
                   type="text"
@@ -654,7 +654,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
               className="flex-1 py-3 rounded-xl bg-[#E50914] hover:bg-[#ff202b] text-white font-extrabold shadow-lg shadow-red-950 transition-all flex items-center justify-center gap-2 active:scale-95"
             >
               <Plus className="w-4 h-4" />
-              <span>{isEditing ? 'I-save ang mga Pagbabago' : 'I-save at I-play sa PinoySineHub'}</span>
+              <span>{isEditing ? 'Save Changes' : 'Save & Play on PinoySineHub'}</span>
             </button>
           </div>
         </form>
@@ -662,6 +662,13 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
     </div>
   );
 };
+
+
+
+
+
+
+
 
 
 
