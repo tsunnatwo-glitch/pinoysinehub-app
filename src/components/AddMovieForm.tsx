@@ -320,7 +320,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
   return (
     <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
       <div
-        className="bg-neutral-900 border border-neutral-800 rounded-2xl max-w-2xl w-full max-h-[94vh] overflow-y-auto p-4 sm:p-6 shadow-2xl text-white relative animate-in fade-in zoom-in-95 duration-200"
+        className="bg-neutral-900 border border-neutral-800 rounded-2xl max-w-4xl w-full max-h-[94vh] overflow-y-auto p-5 sm:p-8 shadow-2xl text-white relative animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -357,7 +357,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+        <form onSubmit={handleSubmit} className="space-y-6 text-xs">
           {/* CATEGORY SELECTOR (The 5 requested categories) */}
           <div>
             <label className="block text-neutral-200 font-bold mb-2 flex items-center gap-1.5">
@@ -667,6 +667,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
     </div>
   );
 };
+
 
 
 
