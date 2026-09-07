@@ -160,7 +160,7 @@ useEffect(() => {
       : selectedGenreCategory === 'Encode By Reborn' && selectedEncodeSubcategory
         ? fullCatalog.filter((m) => m.category === selectedEncodeSubcategory)
         : selectedGenreCategory === 'Encode By Reborn'
-          ? fullCatalog.filter((m) => m.category === 'Encode By Reborn' || m.category === 'Encode By Reborn Tagalog Dubbed Movies' || m.category === 'Encode By Reborn Tagalog Dubbed Anime Series & Series' || m.category === 'Encode By Reborn Tagalog Dubbed No Watermark')
+          ? fullCatalog.filter((m) => m.category === 'Encode By Reborn' || m.category === 'Encode By Reborn Tagalog Dubbed Movies' || m.category === 'Encode By Reborn Tagalog Dubbed Anime Movies' || m.category === 'Encode By Reborn Tagalog Dubbed Anime Series' || m.category === 'Encode By Reborn Tagalog Dubbed Anime Movies No Watermark' || m.category === 'Encode By Reborn Tagalog Dubbed Anime Series No Watermark')
           : fullCatalog.filter((m) => m.category === selectedGenreCategory);
 
 
@@ -424,7 +424,7 @@ useEffect(() => {
 
             {selectedGenreCategory === 'Encode By Reborn' && (
               <div className="max-w-6xl mx-auto px-4 mb-5 overflow-x-auto no-scrollbar flex items-center gap-2">
-                {['Encode By Reborn Tagalog Dubbed Movies', 'Encode By Reborn Tagalog Dubbed Anime Series & Series', 'Encode By Reborn Tagalog Dubbed No Watermark'].map((subcat) => (
+                {['Encode By Reborn Tagalog Dubbed Movies', 'Encode By Reborn Tagalog Dubbed Anime Movies', 'Encode By Reborn Tagalog Dubbed Anime Series', 'Encode By Reborn Tagalog Dubbed Anime Movies No Watermark', 'Encode By Reborn Tagalog Dubbed Anime Series No Watermark'].map((subcat) => (
                   <button
                     key={subcat}
                     onClick={() => setSelectedEncodeSubcategory(subcat)}
@@ -747,6 +747,8 @@ useEffect(() => {
     </div>
   );
 }
+
+
 
 
 

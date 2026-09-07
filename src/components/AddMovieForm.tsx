@@ -12,7 +12,12 @@ import {
   FileImage,
 } from 'lucide-react';
 import { Movie, AppCategory, ContentType } from '../types';
-import { APP_CATEGORIES } from '../data/catalog';
+import { APP_CATEGORIES, ENCODE_BY_REBORN_SUBCATEGORIES } from '../data/catalog';
+
+const UPLOAD_CATEGORIES: AppCategory[] = [
+  ...APP_CATEGORIES.filter((cat) => cat !== 'Encode By Reborn'),
+  ...ENCODE_BY_REBORN_SUBCATEGORIES,
+];
 
 interface AddMovieFormProps {
   onAddMovie: (newMovie: Movie) => void;
@@ -174,7 +179,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
     }
   };
 
-  const isSeries = category === 'Tagalog Dubbed Tv Series' || category === 'Tagalog Dubbed Anime Tv Series';
+  const isSeries = category === 'Tagalog Dubbed Tv Series' || category === 'Tagalog Dubbed Anime Tv Series' || category === 'Encode By Reborn Tagalog Dubbed Anime Series' || category === 'Encode By Reborn Tagalog Dubbed Anime Series No Watermark';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -279,10 +284,10 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
     const updatedMovie: Movie = {
       ...baseMovie,
       title: title.trim(),
-      tagline: `Panoorin sa ${category} - PinoySineHub`,
+      tagline: `Watch on ${category} - PinoySineHub`,
       description:
         description.trim() ||
-        `Mapapanood ang ${title.trim()} sa PinoySineHub. Mag-enjoy sa pinakamalinaw na HD Tagalog Dubbed streaming.`,
+        `Watch ${title.trim()} on PinoySineHub. Enjoy high-quality HD Tagalog Dubbed streaming.`,
       poster: finalPoster,
       backdrop: backdropData || finalPoster,
       duration: isSeries
@@ -359,7 +364,7 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
               <span>Select Category *</span>
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {APP_CATEGORIES.map((cat) => {
+              {UPLOAD_CATEGORIES.map((cat) => {
                 const isSelected = category === cat;
                 return (
                   <button
@@ -662,6 +667,12 @@ export const AddMovieForm: React.FC<AddMovieFormProps> = ({ onAddMovie, onUpdate
     </div>
   );
 };
+
+
+
+
+
+
 
 
 

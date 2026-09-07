@@ -20,12 +20,28 @@ export const APP_CATEGORIES: AppCategory[] = [
   'Encode By Reborn',
 ];
 
+export const ENCODE_BY_REBORN_SUBCATEGORIES = [
+  'Encode By Reborn Tagalog Dubbed Movies',
+  'Encode By Reborn Tagalog Dubbed Anime Movies',
+  'Encode By Reborn Tagalog Dubbed Anime Series',
+  'Encode By Reborn Tagalog Dubbed Anime Movies No Watermark',
+  'Encode By Reborn Tagalog Dubbed Anime Series No Watermark',
+] as const;
+
 export const GENRE_CATEGORIES = [
   'All',
   ...APP_CATEGORIES,
 ];
 
 export const MOVIES_CATALOG: Movie[] = [];
+
+
+
+
+
+
+
+
 
 
 

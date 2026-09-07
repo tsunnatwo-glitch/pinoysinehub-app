@@ -7,7 +7,12 @@ export type AppCategory =
   | 'Tagalog Dubbed Anime Movies'
   | 'Tagalog Dubbed Anime Tv Series'
   | 'Pinoy Movies'
-  | 'Encode By Reborn';
+  | 'Encode By Reborn'
+  | 'Encode By Reborn Tagalog Dubbed Movies'
+  | 'Encode By Reborn Tagalog Dubbed Anime Movies'
+  | 'Encode By Reborn Tagalog Dubbed Anime Series'
+  | 'Encode By Reborn Tagalog Dubbed Anime Movies No Watermark'
+  | 'Encode By Reborn Tagalog Dubbed Anime Series No Watermark'
 
 export interface Episode {
   id: string;
@@ -91,6 +96,12 @@ export interface UserProfile {
     lastPositionSec: number;
   }[];
   isPremiumAdFree: boolean;
+  accessStatus?: 'none' | 'active' | 'expired';
+  activatedAt?: number;
+  expiresAt?: number;
+  paymentStatus?: 'none' | 'pending' | 'verified' | 'rejected';
+  paymentProvider?: 'gcash';
+  paymentReference?: string;
   language: 'tl' | 'en';
 }
 
@@ -137,5 +148,10 @@ export interface AdMetrics {
   revenueEstUSD: number;
   videoAdsCompleted: number;
 }
+
+
+
+
+
 
 
