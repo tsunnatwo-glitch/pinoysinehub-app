@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -28,6 +28,7 @@ export default function App() {
   // App navigation state
   const [activeTab, setActiveTab] = useState<string>('home'); // 'home' | 'watchlist' | 'downloads' | 'profile'
   const [selectedGenreCategory, setSelectedGenreCategory] = useState<string>('All');
+  const [selectedEncodeSubcategory, setSelectedEncodeSubcategory] = useState<string>('');
 
   // Persistence state
   const [customMovies, setCustomMovies] = useState<Movie[]>([]);
@@ -156,7 +157,11 @@ useEffect(() => {
   const filteredCatalog =
     selectedGenreCategory === 'All'
       ? []
-      : fullCatalog.filter((m) => m.category === selectedGenreCategory);
+      : selectedGenreCategory === 'Encode By Reborn' && selectedEncodeSubcategory
+        ? fullCatalog.filter((m) => m.category === selectedEncodeSubcategory)
+        : selectedGenreCategory === 'Encode By Reborn'
+          ? fullCatalog.filter((m) => m.category === 'Encode By Reborn' || m.category === 'Encode By Reborn Tagalog Dubbed Movies' || m.category === 'Encode By Reborn Tagalog Dubbed Anime Series & Series' || m.category === 'Encode By Reborn Tagalog Dubbed No Watermark')
+          : fullCatalog.filter((m) => m.category === selectedGenreCategory);
 
 
   // Actions
@@ -236,7 +241,7 @@ useEffect(() => {
       movieId: movie.id,
       episodeId: episode?.id,
       title: episode ? `${movie.title}: ${episode.title}` : movie.title,
-      subTitle: episode ? episode.duration : `${movie.duration} â€¢ ${movie.audioTracks[0] || 'Original Audio'}`,
+      subTitle: episode ? episode.duration : `${movie.duration} • ${movie.audioTracks[0] || 'Original Audio'}`,
       poster: movie.poster,
       backdrop: episode?.thumbnail || movie.backdrop,
       duration: episode ? episode.duration : movie.duration,
@@ -405,7 +410,7 @@ useEffect(() => {
               {GENRE_CATEGORIES.map((cat) => (
                 <button
                   key={cat}
-                  onClick={() => setSelectedGenreCategory(cat)}
+                  onClick={() => { setSelectedGenreCategory(cat); if (cat !== 'Encode By Reborn') setSelectedEncodeSubcategory(''); }}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-medium shrink-0 transition-all ${
                     selectedGenreCategory === cat
                       ? 'bg-[#E50914] text-white font-bold shadow-md shadow-red-950'
@@ -416,6 +421,20 @@ useEffect(() => {
                 </button>
               ))}
             </div>
+
+            {selectedGenreCategory === 'Encode By Reborn' && (
+              <div className="max-w-6xl mx-auto px-4 mb-5 overflow-x-auto no-scrollbar flex items-center gap-2">
+                {['Encode By Reborn Tagalog Dubbed Movies', 'Encode By Reborn Tagalog Dubbed Anime Series & Series', 'Encode By Reborn Tagalog Dubbed No Watermark'].map((subcat) => (
+                  <button
+                    key={subcat}
+                    onClick={() => setSelectedEncodeSubcategory(subcat)}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-medium shrink-0 transition-all ${selectedEncodeSubcategory === subcat ? 'bg-[#E50914] text-white font-bold' : 'bg-neutral-900/90 text-neutral-300 hover:bg-neutral-800 border border-neutral-800'}`}
+                  >
+                    {subcat}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Selected Category Filter Results (if filtered) */}
             {selectedGenreCategory !== 'All' && (
@@ -457,7 +476,7 @@ useEffect(() => {
             {/* Custom User-Added Movies Row (if any) */}
             {customMovies.length > 0 && selectedGenreCategory === 'All' && (
               <MovieRow
-                title="â­ Aking Mga Idinagdag na Video & Pelikula"
+                title="⭐ Aking Mga Idinagdag na Video & Pelikula"
                 subtitle="Mga custom video link at poster na iyong in-upload"
                 movies={customMovies}
                 onSelectMovie={(m) => setSelectedMovieForDetails(m)}
@@ -487,7 +506,7 @@ useEffect(() => {
             {/* Top 10 Today in Philippines Row */}
             {selectedGenreCategory === 'All' && (
               <MovieRow
-                title="Top 10 Pelikula sa Pilipinas Ngayon ðŸ‡µðŸ‡­"
+                title="Top 10 Pelikula sa Pilipinas Ngayon 🇵🇭"
                 subtitle="Ang pinaka-patok na pinapanood sa bansa"
                 movies={top10Movies}
                 isTop10={true}
@@ -503,7 +522,7 @@ useEffect(() => {
             {/* 1. Tagalog Dubbed Movies Row */}
             {selectedGenreCategory === 'All' && tagalogDubbedMovies.length > 0 && (
               <MovieRow
-                title="ðŸŽ¬ TAGALOG DUBBED MOVIES"
+                title="🎬 TAGALOG DUBBED MOVIES"
                 subtitle="Blockbuster at international movies na may Tagalog boses"
                 movies={tagalogDubbedMovies}
                 onSelectMovie={(m) => setSelectedMovieForDetails(m)}
@@ -518,7 +537,7 @@ useEffect(() => {
             {/* 2. Tagalog Dubbed Tv Series Row */}
             {selectedGenreCategory === 'All' && tagalogDubbedSeries.length > 0 && (
               <MovieRow
-                title="ðŸ“º TAGALOG DUBBED TV SERIES"
+                title="📺 TAGALOG DUBBED TV SERIES"
                 subtitle="Kumpletong episodes ng mga teleserye at foreign drama sa Tagalog"
                 movies={tagalogDubbedSeries}
                 onSelectMovie={(m) => setSelectedMovieForDetails(m)}
@@ -533,7 +552,7 @@ useEffect(() => {
             {/* 3. Tagalog Dubbed Anime Movies Row */}
             {selectedGenreCategory === 'All' && tagalogDubbedAnimeMovies.length > 0 && (
               <MovieRow
-                title="ðŸ™ TAGALOG DUBBED ANIME MOVIES"
+                title="🍙 TAGALOG DUBBED ANIME MOVIES"
                 subtitle="Epic Japanese animation movies na naka-Tagalog Dubbed"
                 movies={tagalogDubbedAnimeMovies}
                 onSelectMovie={(m) => setSelectedMovieForDetails(m)}
@@ -548,7 +567,7 @@ useEffect(() => {
             {/* 4. Tagalog Dubbed Anime Tv Series Row */}
             {selectedGenreCategory === 'All' && tagalogDubbedAnimeSeries.length > 0 && (
               <MovieRow
-                title="âš¡ TAGALOG DUBBED ANIME TV SERIES"
+                title="⚡ TAGALOG DUBBED ANIME TV SERIES"
                 subtitle="Shonen, mecha, at supernatural anime series na naka-Tagalog boses"
                 movies={tagalogDubbedAnimeSeries}
                 onSelectMovie={(m) => setSelectedMovieForDetails(m)}
@@ -728,6 +747,9 @@ useEffect(() => {
     </div>
   );
 }
+
+
+
 
 
 
